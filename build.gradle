@@ -1,0 +1,51 @@
+if (!hasProperty('buildProfile')) ext.buildProfile = 'arquillian-weld-embedded'
+
+logger.quiet "using buildProfile=${buildProfile}"
+
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'org.arquillian.example'
+version = '1.0-SNAPSHOT'
+
+description = """arquillian-tutorial-gradle"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+repositories {
+     maven { url "http://repo.maven.apache.org/maven2" }
+}
+
+
+	
+dependencies {
+    	 compile group: 'javax', name: 'javaee-api', version: '8.0'
+     testCompile group: 'junit', name: 'junit', version:'4.12'
+     testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
+     
+     switch ( buildProfile ) {
+     	case "arquillian-wildfly-managed": logger.info "dep wildfly-managed"; 
+     		testCompile group: 'org.wildfly.arquillian', name: 'wildfly-arquillian-container-managed', version: '2.1.0.Final'
+			test.systemProperties = ['arquillian.launch': 'wildfly-managed' ]
+			break;
+		case "arquillian-wildfly-remote": logger.info "dep wildfly-remote"; 
+		    
+     		testCompile group: 'org.wildfly.arquillian', name: 'wildfly-arquillian-container-remote', version: '2.1.0.Final'
+			test.systemProperties = ['arquillian.launch': 'wildfly-remote' ]
+			break;	
+		case "arquillian-wildfly-embedded": logger.info "dep wildfly-embedded"; 
+     		testCompile group: 'org.wildfly.arquillian', name: 'wildfly-arquillian-container-embedded', version: '2.1.0.Final'
+			test.systemProperties = ['arquillian.launch': 'wildfly-embedded' , 'java.util.logging.manager':'org.jboss.logmanager.LogManager']
+			break;	
+     	case "arquillian-weld-embedded":
+     	    
+     	 	testCompile group: 'org.jboss.arquillian.container', name: 'arquillian-weld-ee-embedded-1.1', version: '1.0.0.Final'
+     		testCompile group: 'org.jboss.weld', name: 'weld-core', version: '2.4.5.Final';
+     		break;
+     	default: logger.error "no profile spec"; 
+     }
+}

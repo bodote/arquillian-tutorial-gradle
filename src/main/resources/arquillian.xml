@@ -1,0 +1,54 @@
+<arquillian xmlns="http://jboss.org/schema/arquillian"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://jboss.org/schema/arquillian
+        http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+        
+     <!-- Configuration to be used when the WildFly  profile is active 
+     Debugging: 
+     mvn test -P arquillian-wildfly-embedded -Darquillian.debug=true 
+     The -Darquillian.launch=<container qualifier value> system property is what controls arquillian.xml configuration selection
+  z.B.   
+    mvn test -P arquillian-wildfly-managed -Darquillian.debug=false -Darquillian.launch=wildfly-managed
+    
+    
+     Property		Default			Description
+	jbossHome		$JBOSS_HOME		The JBoss configuration to start.
+	javaHome			$JAVA_HOME		The Java runtime to use to start the server.
+	modulePath		$module.path		The location of the module repository.
+	javaVmArguments	-Xmx512m -XX:MaxPermSize=128m	JVM arguments used to start the server.
+	startupTimeoutInSeconds	30		Time to wait before throwing Exception on server startup.
+	outputToConsole	true				Should 	the server startup console log be piped to the console
+	serverConfig		standalone.xml		Which server configuration file to startup with
+	managementAddress	127.0.0.1	The ip address of the running server instances manage interface
+	managementPort	9990				The management port for deployment
+	allowConnectingToRunningServer	false	If true, if a running AS is found on managementPort, it is used; if false, fails.
+     -->
+    <container qualifier="wildfly-remote">
+        <configuration>
+            <property name="managementAddress">127.0.0.1</property>
+            <property name="managementPort">9990</property>
+            <property name="username">admin</property>
+            <property name="password">FunkJazz55</property>
+             
+        </configuration>
+    </container>   
+        
+    <container qualifier="wildfly-managed" default="false">
+        <configuration>
+            <property name="jbossHome">/Users/bodo/swe_projects/wildfly-11.0.0.Final</property>
+        </configuration>
+    </container>
+     <container qualifier="wildfly-embedded" default="false">
+        <configuration>
+            <property name="jbossHome">/Users/bodo/swe_projects/wildfly-11.0.0.Final</property>
+             <property name="modulePath">/Users/bodo/swe_projects/wildfly-11.0.0.Final/modules</property>
+       	  
+        </configuration>
+    </container>
+     <container qualifier="weld-embedded" default="true">
+        <configuration>
+            <property name="enableConversationScope">false</property>
+        </configuration>
+    </container>
+</arquillian>
