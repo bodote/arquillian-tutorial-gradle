@@ -40,9 +40,9 @@
         </configuration>
     </container>
      <container qualifier="wildfly-embedded" default="false">
-        <configuration>
-            <property name="jbossHome">/Users/bodo/swe_projects/wildfly-11.0.0.Final</property>
-             <property name="modulePath">/Users/bodo/swe_projects/wildfly-11.0.0.Final/modules</property>
+        <configuration> 
+            <property name="jbossHome">${project.baseDir}/bin/wildfly-11.0.0.Final</property>
+             <property name="modulePath">${project.baseDir}/bin/wildfly-11.0.0.Final/modules</property>
        	  
         </configuration>
     </container>
