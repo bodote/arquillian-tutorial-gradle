@@ -20,9 +20,25 @@ repositories {
      maven { url "http://repo.maven.apache.org/maven2" }
 }
 
+configurations {
+    wildfly
+}
 
-	
+
+task resolveWildfly(type: Copy) {
+    destinationDir = file("bin")
+    from { zipTree(configurations.wildfly.singleFile) }
+    outputs.upToDateWhen {
+    		//quick hack, since standalone.xml get modified , when wildffly starts
+    		return true
+    		//but this hack also does not work, it still  unzips the whole thing....
+    }
+}
+
+
+
 dependencies {
+     wildfly "org.wildfly:wildfly-dist:11.0.0.Final@zip"
     	 compile group: 'javax', name: 'javaee-api', version: '8.0'
      testCompile group: 'junit', name: 'junit', version:'4.12'
      testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
@@ -39,7 +55,11 @@ dependencies {
 			break;	
 		case "arquillian-wildfly-embedded": logger.info "dep wildfly-embedded"; 
      		testCompile group: 'org.wildfly.arquillian', name: 'wildfly-arquillian-container-embedded', version: '2.1.0.Final'
-			test.systemProperties = ['arquillian.launch': 'wildfly-embedded' , 'java.util.logging.manager':'org.jboss.logmanager.LogManager']
+			test.systemProperties = ['arquillian.launch': 'wildfly-embedded' , 
+				'java.util.logging.manager':'org.jboss.logmanager.LogManager',
+				'project.baseDir': projectDir 
+				]
+			test.dependsOn resolveWildfly
 			break;	
      	case "arquillian-weld-embedded":
      	    
