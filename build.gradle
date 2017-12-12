@@ -1,6 +1,6 @@
-if (!hasProperty('buildProfile')) ext.buildProfile = 'arquillian-weld-embedded'
+if (!hasProperty('buildProfile')) ext.buildProfile = 'arquillian-wildfly-embedded'
 
-logger.quiet "using buildProfile=${buildProfile}"
+logger.quiet "using buildProfile=${buildProfile} to use a different profile , use gradle build -PbuildProfile=arquillian-wildfly-remote"
 
 
 apply plugin: 'java'
