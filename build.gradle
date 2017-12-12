@@ -20,18 +20,23 @@ repositories {
      maven { url "http://repo.maven.apache.org/maven2" }
 }
 
-configurations {
+configurations { 
     wildfly
 }
 
 
 task resolveWildfly(type: Copy) {
-    destinationDir = file("bin")
-    from { zipTree(configurations.wildfly.singleFile) }
+    destinationDir = file("bin") 
+     
+    from { 
+    		zipTree(configurations.wildfly.singleFile) 
+    }
+    
     outputs.upToDateWhen {
     		//quick hack, since standalone.xml get modified , when wildffly starts
     		return true
-    		//but this hack also does not work, it still  unzips the whole thing....
+    		//but this hack also does not work, it still  unzips the whole thing sometimes ...
+    		//maybe google for "onlyIf(onlyIfClosure)
     }
 }
 
