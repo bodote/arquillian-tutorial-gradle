@@ -20,7 +20,7 @@ public class GreeterTest {
 	 @Deployment
 	    public static JavaArchive createDeployment() {
 		 System.getProperties().entrySet().forEach(e -> {
-				System.out.println("prop: " + e.getKey() + "=" + e.getValue());
+				//System.out.println("prop: " + e.getKey() + "=" + e.getValue());
 			});
 	        JavaArchive jar =  ShrinkWrap.create(JavaArchive.class)
 	            .addClasses(Greeter.class,PhraseBuilder.class)
