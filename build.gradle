@@ -1,7 +1,5 @@
 if (!hasProperty('buildProfile')) ext.buildProfile = 'arquillian-wildfly-embedded'
-
 logger.quiet "using buildProfile=${buildProfile} to use a different profile , use this command line: 'gradle build -PbuildProfile=arquillian-wildfly-remote' "
-
 
 apply plugin: 'java'
 apply plugin: 'maven'
@@ -35,12 +33,10 @@ task resolveWildfly(type: Copy) {
     outputs.upToDateWhen {
     		//quick hack, since standalone.xml gets modified everytime, when wildffly starts
     		return true
-    		//but this hack also does not work, it still  unzips the whole thing sometimes ...
+    		//but this hack also does not always work, it still  unzips the whole thing, sometimes....
     		//maybe google for "onlyIf(onlyIfClosure)
     }
 }
-
-
 
 dependencies {
      wildfly "org.wildfly:wildfly-dist:11.0.0.Final@zip"
