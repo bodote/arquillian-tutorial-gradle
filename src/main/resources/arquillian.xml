@@ -29,8 +29,7 @@
             <property name="managementAddress">127.0.0.1</property>
             <property name="managementPort">9990</property>
             <property name="username">admin</property>
-            <property name="password">FunkJazz55</property>
-             
+            <property name="password">myPasswordForWildfly</property>            
         </configuration>
     </container>   
         
@@ -39,14 +38,13 @@
             <property name="jbossHome">/Users/bodo/swe_projects/wildfly-11.0.0.Final</property>
         </configuration>
     </container>
-     <container qualifier="wildfly-embedded" default="false">
+     <container qualifier="wildfly-embedded" default="true">
         <configuration> 
-            <property name="jbossHome">${project.baseDir}/bin/wildfly-11.0.0.Final</property>
-             <property name="modulePath">${project.baseDir}/bin/wildfly-11.0.0.Final/modules</property>
-       	  
+              <property name="jbossHome">${project.baseDir}/bin/wildfly-11.0.0.Final</property>
+             <property name="modulePath">${project.baseDir}/bin/wildfly-11.0.0.Final/modules</property> 
         </configuration>
     </container>
-     <container qualifier="weld-embedded" default="true">
+     <container qualifier="weld-embedded" default="false">
         <configuration>
             <property name="enableConversationScope">false</property>
         </configuration>
