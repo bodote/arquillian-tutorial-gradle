@@ -38,14 +38,16 @@
             <property name="jbossHome">/Users/bodo/swe_projects/wildfly-11.0.0.Final</property>
         </configuration>
     </container>
-     <container qualifier="wildfly-embedded" default="true">
+     <container qualifier="wildfly-embedded" default="false">
         <configuration> 
               <property name="jbossHome">${project.baseDir}/bin/wildfly-11.0.0.Final</property>
              <property name="modulePath">${project.baseDir}/bin/wildfly-11.0.0.Final/modules</property> 
         </configuration>
     </container>
-     <container qualifier="weld-embedded" default="false">
+     <container qualifier="weld-embedded" default="true">
         <configuration>
+            <property name="jbossHome">${project.baseDir}/bin/wildfly-11.0.0.Final</property>
+             <property name="modulePath">${project.baseDir}/bin/wildfly-11.0.0.Final/modules</property> 
             <property name="enableConversationScope">false</property>
         </configuration>
     </container>
