@@ -70,15 +70,16 @@ public class IntegrationTest {
 	@Test
 	@RunAsClient
 	public void findAllCategories() throws MalformedURLException, URISyntaxException {
-		
+		String myUrlString = url.toString().concat("rest/myget");
+		URL myUrl = new URL(myUrlString);
 		final Client resourceClient = ClientBuilder.newClient();
-		Builder builder = resourceClient.target(url.toURI()).request(MediaType.TEXT_PLAIN);
+		Builder builder = resourceClient.target(myUrl.toURI()).request(MediaType.TEXT_PLAIN);
 		Response response = builder.get();
 		String message = response.readEntity(String.class);
 		
 		assertThat(response.getStatus(), is(equalTo(Response.Status.OK.getStatusCode())));
 	
-		assertThat(message,is(equalTo("Hello")));;
+		assertThat(message,is(equalTo("hello")));;
 	}
 
 
