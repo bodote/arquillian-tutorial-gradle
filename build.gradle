@@ -72,12 +72,9 @@ dependencies {
 			//http://www.lordofthejars.com/2016/09/arquillian-chameleon-for-sake-of.html
      		testCompile group: 'org.arquillian.container', name: 'arquillian-container-chameleon', version: '1.0.0.CR1'
      		testCompile group: 'org.arquillian.container', name: 'arquillian-chameleon-junit-container-starter', version: '1.0.0.CR1'
-     		testCompile group: 'org.jboss.logmanager', name: 'jboss-logmanager', version: '2.0.9.Final'
-			test.systemProperties = ['arquillian.launch': 'arquillian-container-chameleon-payara5' ,
-			     'java.util.logging.manager':'org.jboss.logmanager.LogManager', 
-								
+     		//testCompile group: 'org.jboss.logmanager', name: 'jboss-logmanager', version: '2.0.9.Final'
+			test.systemProperties = ['arquillian.launch': 'arquillian-container-chameleon-payara5'			    					
 				] // needed by src/mein/resources/arquillian.xml
-			test.dependsOn resolveWildfly
 			break;	
      	case "arquillian-weld-embedded":
      	    
@@ -85,6 +82,8 @@ dependencies {
      	 	  testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
      		testCompile group: 'org.jboss.weld', name: 'weld-core', version: '2.4.5.Final';
      		break;
-     	default: logger.error "no profile spec"; 
+     	default:
+     		throw new GradleException('no valid profile specified');
+     		 
      }
 }
