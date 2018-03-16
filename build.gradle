@@ -1,4 +1,4 @@
-if (!hasProperty('buildProfile')) ext.buildProfile = 'arquillian-wildfly-embedded'
+if (!hasProperty('buildProfile')) ext.buildProfile = 'arquillian-container-chameleon-payara5'
 logger.quiet "using buildProfile=${buildProfile} to use a different profile , use this command line: 'gradle build -PbuildProfile=arquillian-wildfly-embedded' "
 logger.quiet "my Project dir is: ${projectDir}"
 apply plugin: 'java'

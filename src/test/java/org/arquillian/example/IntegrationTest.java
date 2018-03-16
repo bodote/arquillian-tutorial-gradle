@@ -77,7 +77,7 @@ public class IntegrationTest {
 		Response response = builder.get();
 		String message = response.readEntity(String.class);
 		
-		assertThat(response.getStatus(), is(equalTo(Response.Status.OK.getStatusCode())));
+		assertThat(response.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
 	
 		assertThat(message,is(equalTo("hello")));;
 	}
