@@ -1,8 +1,9 @@
-if (!hasProperty('buildProfile')) ext.buildProfile = 'arquillian-weld-embedded'
+if (!hasProperty('buildProfile')) ext.buildProfile = 'arquillian-container-chameleon-payara5'
 logger.quiet "using buildProfile=${buildProfile} to use a different profile , use this command line: 'gradle build -PbuildProfile=arquillian-wildfly-embedded' "
-
+logger.quiet "my Project dir is: ${projectDir}"
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'war'
 
 group = 'org.arquillian.example'
 version = '1.0-SNAPSHOT'
@@ -19,52 +20,69 @@ repositories {
 }
 
 configurations { 
-    wildfly
+    wildfly // is's a custom configuration, see https://docs.gradle.org/current/userguide/managing_dependency_configurations.html
+    // nedded to be able to define ' wildfly "org.wildfly:wildfly-dist:11.0.0.Final@zip"' and by 'zipTree(configurations.wildfly.singleFile)'
 }
 
 
-task resolveWildfly(type: Copy) {
-    destinationDir = file("bin") 
+task resolveWildfly(type: Copy) {// only for case "arquillian-wildfly-embedded": by 'test.dependsOn resolveWildfly'
+    destinationDir = file("bin") //see src/mein/resources/arquillian.xml which expects ${project.baseDir}/bin/wildfly-11.0.0.Final to be there
      
     from { 
     		zipTree(configurations.wildfly.singleFile) 
-    }
-    
-    outputs.upToDateWhen {
-    		//quick hack, since standalone.xml gets modified everytime, when wildffly starts
-    		return false //true      		
-    		//but this hack also does not always work, it still  unzips the whole thing, sometimes....
-    		//maybe google for "onlyIf(onlyIfClosure)
-    }
+    } 
 }
+resolveWildfly.onlyIf {
+  //download and unpack wildfly zip only if it does not yet exist use README.txt as a indication. 
+  // be aware that wildfly-11.0.0.Final/standalone/configuration/standalone.xml will be modified by wildfly itself during restart, so the timestamp 
+  // of that file will constantly change. This why we need this "onlyIf" here.
+  !file("${projectDir}/bin/wildfly-11.0.0.Final/README.txt").exists() 
+} 
 
 dependencies {
      wildfly "org.wildfly:wildfly-dist:11.0.0.Final@zip"
-    	 compile group: 'javax', name: 'javaee-api', version: '8.0'
+     providedCompile group: 'javax', name: 'javaee-api', version: '8.0'
      testCompile group: 'junit', name: 'junit', version:'4.12'
-     testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
+   
      
      switch ( buildProfile ) {
-     	case "arquillian-wildfly-managed": logger.info "dep wildfly-managed"; 
+     	case "arquillian-wildfly-managed": logger.info "dep wildfly-managed";
+     	    //A managed container is similar to a remote container, except its lifecycle (startup/shutdown) is also managed by Arquillian. 
      		testCompile group: 'org.wildfly.arquillian', name: 'wildfly-arquillian-container-managed', version: '2.1.0.Final'
-			test.systemProperties = ['arquillian.launch': 'wildfly-managed' ]
+     		  testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
+			test.systemProperties = ['arquillian.launch': 'wildfly-managed' ] // needed by src/mein/resources/arquillian.xml
 			break;
 		case "arquillian-wildfly-remote": logger.info "dep wildfly-remote"; 
-		    
+		    //A remote container resides in a separate JVM from the test runner.
      		testCompile group: 'org.wildfly.arquillian', name: 'wildfly-arquillian-container-remote', version: '2.1.0.Final'
-			test.systemProperties = ['arquillian.launch': 'wildfly-remote' ]
+     		  testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
+			test.systemProperties = ['arquillian.launch': 'wildfly-remote' ] // needed by src/mein/resources/arquillian.xml
 			break;	
 		case "arquillian-wildfly-embedded": logger.info "dep wildfly-embedded"; 
+			//An embedded container resides in the same JVM and is mostly likely managed by Arquillian.
      		testCompile group: 'org.wildfly.arquillian', name: 'wildfly-arquillian-container-embedded', version: '2.1.0.Final'
+     		  testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
 			test.systemProperties = ['arquillian.launch': 'wildfly-embedded' , 
 				'java.util.logging.manager':'org.jboss.logmanager.LogManager',
 				'project.baseDir': projectDir 
-				]
+				] // needed by src/mein/resources/arquillian.xml
+			test.dependsOn resolveWildfly
+			break;	
+		case "arquillian-container-chameleon-payara5": logger.info "***************************dep arquillian-container-chameleon-payara5"; 
+			//http://www.lordofthejars.com/2016/09/arquillian-chameleon-for-sake-of.html
+     		testCompile group: 'org.arquillian.container', name: 'arquillian-container-chameleon', version: '1.0.0.CR1'
+     		testCompile group: 'org.arquillian.container', name: 'arquillian-chameleon-junit-container-starter', version: '1.0.0.CR1'
+     		testCompile group: 'org.jboss.logmanager', name: 'jboss-logmanager', version: '2.0.9.Final'
+			test.systemProperties = ['arquillian.launch': 'arquillian-container-chameleon-payara5' ,
+			     'java.util.logging.manager':'org.jboss.logmanager.LogManager', 
+								
+				] // needed by src/mein/resources/arquillian.xml
 			test.dependsOn resolveWildfly
 			break;	
      	case "arquillian-weld-embedded":
      	    
      	 	testCompile group: 'org.jboss.arquillian.container', name: 'arquillian-weld-ee-embedded-1.1', version: '1.0.0.Final'
+     	 	  testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
      		testCompile group: 'org.jboss.weld', name: 'weld-core', version: '2.4.5.Final';
      		break;
      	default: logger.error "no profile spec"; 

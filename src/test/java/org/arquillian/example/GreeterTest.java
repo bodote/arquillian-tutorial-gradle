@@ -29,15 +29,15 @@ public class GreeterTest {
 		
 		 //assertEquals(System.getProperty("java.util.logging.manager"), "org.jboss.logmanager.LogManager");;
 		 //assertNotNull(System.getProperty("project.baseDir"));
-				
+		 System.out.println("create war file" );		
 		 System.getProperties().entrySet().forEach(e -> {
-				System.out.println("prop_all: " + e.getKey() + "=" + e.getValue());
+				//System.out.println("prop_all: " + e.getKey() + "=" + e.getValue());
 			});
 	        JavaArchive jar =  ShrinkWrap.create(JavaArchive.class)
 	            .addClasses(Greeter.class,PhraseBuilder.class)
 	            .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
 	     
-	        return jar;
+	        return jar; 
 	    }
 	
 	 @Inject
@@ -48,7 +48,7 @@ public class GreeterTest {
     	assertNotNull(greeter);
     	Assert.assertEquals("Hello, Earthling!",
     	        greeter.createGreeting("Earthling"));
-    	    greeter.greet(System.out, "Earthling");
+    	greeter.greet(System.out, "#########################################Earthling");
     	   // assertNotNull(null);
     }
 }

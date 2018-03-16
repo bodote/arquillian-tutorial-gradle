@@ -44,7 +44,20 @@
              <property name="modulePath">${project.baseDir}/bin/wildfly-11.0.0.Final/modules</property> 
         </configuration>
     </container>
-     <container qualifier="weld-embedded" default="true">
+    <container qualifier="arquillian-container-chameleon-wf11" default="false">
+        <configuration> 
+                    <property name="chameleonTarget">wildfly:11.0.0.Final:managed</property>
+                    <property name="serverConfig">standalone-full.xml</property>
+    	</configuration>
+     </container>
+    <container qualifier="arquillian-container-chameleon-payara5" default="true">
+        <configuration> 
+
+                    <property name="chameleonTarget">payara:5.Beta2:managed</property>
+                 
+       </configuration>
+    </container>
+     <container qualifier="weld-embedded" default="false">
         <configuration>
             <property name="jbossHome">${project.baseDir}/bin/wildfly-11.0.0.Final</property>
              <property name="modulePath">${project.baseDir}/bin/wildfly-11.0.0.Final/modules</property> 
