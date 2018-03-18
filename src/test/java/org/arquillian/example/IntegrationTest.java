@@ -57,7 +57,8 @@ public class IntegrationTest {
 				.addPackages(true, "org.arquillian.example")
 				.addAsResource("persistence-integration.xml", "META-INF/persistence.xml")
 				.addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
-				//.setWebXML(new File("src/test/resources/jboss-web.xml"))	;
+				
+			
 	}
 
 	@Before
@@ -70,7 +71,7 @@ public class IntegrationTest {
 	@Test
 	@RunAsClient
 	public void findAllCategories() throws MalformedURLException, URISyntaxException {
-		String myUrlString = url.toString().concat("rest/myget");
+		String myUrlString = url.toString().concat("rest/myget/all");
 		URL myUrl = new URL(myUrlString);
 		final Client resourceClient = ClientBuilder.newClient();
 		Builder builder = resourceClient.target(myUrl.toURI()).request(MediaType.TEXT_PLAIN);
