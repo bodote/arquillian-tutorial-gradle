@@ -11,7 +11,16 @@
         </properties>
     </persistence-unit>
     
-    <!-- 
+    <!-- add this to domain.xml:
+        <jdbc-connection-pool datasource-classname="org.h2.jdbcx.JdbcDataSource" name="h2PU" res-type="javax.sql.DataSource">
+      <property name="url" value="jdbc:h2:mem:test"></property>
+      <property name="user" value="sa"></property>
+      <property name="password" value=""></property>
+    </jdbc-connection-pool>
+    <jdbc-resource pool-name="h2PU" object-type="system-all" jndi-name="jdbc/h2mem"></jdbc-resource>
+     -->
+    
+     <!--
 	<persistence-unit name="examplePU" transaction-type="JTA">
 	    <jta-data-source>jdbc/__default</jta-data-source>
 		  <jta-data-source>java:comp/DefaultDataSource</jta-data-source>
