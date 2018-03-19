@@ -57,10 +57,9 @@
      </container>
     <container qualifier="arquillian-container-chameleon-payara5" default="true">
         <configuration> 
-                    <property name="chameleonTarget">payara:5.Beta2:managed</property>
+                    <property name="chameleonTarget">payara:5.181:managed</property>
                     <property name="debug">true</property><!-- default port is 9009 you might need to tweak  payaras domain.xml : debug-options="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009"-->
-                    <property name="outputToConsole">true</property>  
-                    <!-- <property name="startDerby">true</property>     does not work  -->           
+                    <property name="outputToConsole">true</property>      
        </configuration>
     </container>
      <container qualifier="weld-embedded" default="false">

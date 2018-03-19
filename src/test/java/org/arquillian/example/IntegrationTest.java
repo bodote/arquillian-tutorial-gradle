@@ -43,17 +43,27 @@ public class IntegrationTest {
 	//private static final String PATH_RESOURCE = ResourceDefinitions.CATEGORY.getResourceName();
 	
 	//**************THIS IS IMPORTANT!*********
-	//need the following in Eclipse, otherwise Test will not run inside Eclipse!	
+	//need the following in Eclipse and wildfly is used, otherwise Test will not run inside Eclipse!	
 	 //set in Eclipse Run/Debug Configuration-> (x)=Arguments -> "vm Arguments" add this: 
 	 //-Djava.util.logging.manager=org.jboss.logmanager.LogManager  -Dproject.baseDir=${workspace_loc:<myEclipseProjectName>}  -Darquillian.debug=true
 	 //but when run from command line with gradle , these variables will be  set in the gradle.build file
-	//****for Payara / derbyDB: need to start derbyDB first: 
-	//cd arquillian-tutorial-gradle/build/server/payara_5.Beta2/payara5
-	//>./bin/asadmin start-database
-	 //assertEquals(System.getProperty("java.util.logging.manager"), "org.jboss.logmanager.LogManager");;
-	 //assertNotNull(System.getProperty("project.baseDir"));
+	
+	
+	/* FOR Eclipse with Payara (instead of wildfly):
+	 * if this does not work, check whether payaras domain1/config/default.xml contains this:
+	 *      <jdbc-resource pool-name="H2Pool" object-type="system-all" jndi-name="jdbc/__default"></jdbc-resource>
+	 *     	<jdbc-connection-pool is-isolation-level-guaranteed="false" datasource-classname="org.h2.jdbcx.JdbcDataSource" name="H2Pool" res-type="javax.sql.DataSource">
+	 *           <property name="URL" value="jdbc:h2:${com.sun.aas.instanceRoot}/lib/databases/embedded_default;AUTO_SERVER=TRUE"></property>
+	 *       </jdbc-connection-pool>
+	 *               
+	 */
+	
+	
+	
 	@Deployment
 	public static WebArchive createDeployment() {
+		 //assertEquals(System.getProperty("java.util.logging.manager"), "org.jboss.logmanager.LogManager");;
+		 //assertNotNull(System.getProperty("project.baseDir"));
 		return ShrinkWrap
 				.create(WebArchive.class)
 				.addPackages(true, "org.arquillian.example")
@@ -82,7 +92,7 @@ public class IntegrationTest {
 		
 		assertThat(response.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
 	
-		assertThat(message,is(equalTo("hello")));;
+		assertThat(message,is(equalTo("hello")));
 	}
 
 
