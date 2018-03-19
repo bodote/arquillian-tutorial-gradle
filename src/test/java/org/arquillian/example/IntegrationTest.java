@@ -47,7 +47,9 @@ public class IntegrationTest {
 	 //set in Eclipse Run/Debug Configuration-> (x)=Arguments -> "vm Arguments" add this: 
 	 //-Djava.util.logging.manager=org.jboss.logmanager.LogManager  -Dproject.baseDir=${workspace_loc:<myEclipseProjectName>}  -Darquillian.debug=true
 	 //but when run from command line with gradle , these variables will be  set in the gradle.build file
-	
+	//****for Payara / derbyDB: need to start derbyDB first: 
+	//cd arquillian-tutorial-gradle/build/server/payara_5.Beta2/payara5
+	//>./bin/asadmin start-database
 	 //assertEquals(System.getProperty("java.util.logging.manager"), "org.jboss.logmanager.LogManager");;
 	 //assertNotNull(System.getProperty("project.baseDir"));
 	@Deployment
