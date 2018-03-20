@@ -5,7 +5,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.io.File;
+
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
