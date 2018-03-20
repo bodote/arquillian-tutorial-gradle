@@ -13,7 +13,20 @@
 				value="create" />
            <property name="javax.persistence.schema-generation.scripts.create-target"
 				value="db-schema-create.jpa.ddl" />
+ <!-- other properties: see http://download.oracle.com/otn-pub/jcp/persistence-2_2-mrel-spec/JavaPersistence.pdf
+ "8.2.1.9 properties", 
+ but The following properties defined by this specification are intended for use in ONLY in Java SE environments, NOT in Java EE Server
+• javax.persistence.jdbc.driver — fully qualified name of the driver class
+• javax.persistence.jdbc.url — driver-specific URL
+• javax.persistence.jdbc.user — username used by database connection
+• javax.persistence.jdbc.password — password for database connection validation
+INSTEAD for JavaEE Server you need to define these date in a jta-data-source 
  
+ to find the generated db-schema-create.jpa.ddl script use:
+      find . -name "*.ddl" -print
+      you will find it probably here: 
+      ....build/server/payara_5.181/payara5/glassfish/domains/domain1/config/db-schema-create.jpa.ddl
+  -->
         </properties>
     </persistence-unit>
     

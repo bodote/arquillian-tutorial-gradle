@@ -1,5 +1,5 @@
 if (!hasProperty('buildProfile')) ext.buildProfile = 'arquillian-container-chameleon-payara5'
-logger.quiet "using buildProfile=${buildProfile} to use a different profile , use this command line: 'gradle build -PbuildProfile=arquillian-wildfly-embedded' "
+logger.quiet "using buildProfile=${buildProfile}; to use a different profile , use this command line: 'gradle build -PbuildProfile=arquillian-wildfly-embedded' "
 logger.quiet "my Project dir is: ${projectDir}"
 apply plugin: 'java'
 apply plugin: 'maven'
@@ -40,7 +40,6 @@ resolveWildfly.onlyIf {
 } 
 
 dependencies {
-     wildfly "org.wildfly:wildfly-dist:11.0.0.Final@zip"
      providedCompile group: 'javax', name: 'javaee-api', version: '8.0'
      testCompile group: 'junit', name: 'junit', version:'4.12'
      testCompile group: 'org.jboss.resteasy', name: 'resteasy-client', version: '3.5.0.Final'
@@ -52,20 +51,23 @@ dependencies {
      switch ( buildProfile ) {
      	case "arquillian-wildfly-managed": logger.info "dep wildfly-managed";
      	    //A managed container is similar to a remote container, except its lifecycle (startup/shutdown) is also managed by Arquillian. 
+     	     wildfly "org.wildfly:wildfly-dist:11.0.0.Final@zip"
      		testCompile group: 'org.wildfly.arquillian', name: 'wildfly-arquillian-container-managed', version: '2.1.0.Final'
-     		  testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
+     		testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
 			test.systemProperties = ['arquillian.launch': 'wildfly-managed' ] // needed by src/mein/resources/arquillian.xml
 			break;
 		case "arquillian-wildfly-remote": logger.info "dep wildfly-remote"; 
 		    //A remote container resides in a separate JVM from the test runner.
+		    wildfly "org.wildfly:wildfly-dist:11.0.0.Final@zip"
      		testCompile group: 'org.wildfly.arquillian', name: 'wildfly-arquillian-container-remote', version: '2.1.0.Final'
-     		  testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
+     		testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
 			test.systemProperties = ['arquillian.launch': 'wildfly-remote' ] // needed by src/mein/resources/arquillian.xml
 			break;	
 		case "arquillian-wildfly-embedded": logger.info "dep wildfly-embedded"; 
 			//An embedded container resides in the same JVM and is mostly likely managed by Arquillian.
+			wildfly "org.wildfly:wildfly-dist:11.0.0.Final@zip"
      		testCompile group: 'org.wildfly.arquillian', name: 'wildfly-arquillian-container-embedded', version: '2.1.0.Final'
-     	  testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
+     	    testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
 			test.systemProperties = ['arquillian.launch': 'wildfly-embedded' , 
 				'java.util.logging.manager':'org.jboss.logmanager.LogManager',
 				'project.baseDir': projectDir 
@@ -81,9 +83,9 @@ dependencies {
 				] // needed by src/mein/resources/arquillian.xml
 			break;	
      	case "arquillian-weld-embedded":
-     	    
+     	    // this config works only for Integrationtests, that uses CDI only, but NOT JPA and NOT JAX-RS
      	 	testCompile group: 'org.jboss.arquillian.container', name: 'arquillian-weld-ee-embedded-1.1', version: '1.0.0.Final'
-     	 	  testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
+     	 	testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
      		testCompile group: 'org.jboss.weld', name: 'weld-core', version: '2.4.5.Final';
      		test.systemProperties = ['arquillian.launch': 'weld-embedded'			    					
 				] // needed by src/main/resources/arquillian.xml
