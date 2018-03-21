@@ -6,10 +6,10 @@
         
      <!-- Configuration to be used when the WildFly  profile is active 
      Debugging: 
-     mvn test -P arquillian-wildfly-embedded -Darquillian.debug=true 
+     mvn test -P wildfly-embedded -Darquillian.debug=true 
      The -Darquillian.launch=<container qualifier value> system property is what controls arquillian.xml configuration selection
   z.B.   
-    mvn test -P arquillian-wildfly-managed -Darquillian.debug=false -Darquillian.launch=wildfly-managed
+    mvn test -P wildfly-managed -Darquillian.debug=false -Darquillian.launch=wildfly-managed
     
     
      Property		Default			Description
@@ -49,20 +49,29 @@
             
         </configuration>
     </container>
-    <container qualifier="arquillian-container-chameleon-wf11" default="false">
+    <container qualifier="container-chameleon-wf11" default="false">
         <configuration> 
                     <property name="chameleonTarget">wildfly:11.0.0.Final:managed</property>
                     <property name="serverConfig">standalone-full.xml</property>
     	</configuration>
-     </container>
-    <container qualifier="arquillian-container-chameleon-payara5" default="false">
+    	</container>
+    	
+    	 <container qualifier="container-chameleon-wf12-remote" default="true">
+        <configuration> 
+                    <property name="chameleonTarget">wildfly:12.0.0.Final:remote</property>
+                  
+    	</configuration>
+   </container>
+     
+     
+    <container qualifier="container-chameleon-payara5-managed" default="false">
         <configuration> 
                     <property name="chameleonTarget">payara:5.181:managed</property>
                     <property name="debug">true</property><!-- default port is 9009 you might need to tweak  payaras domain.xml : debug-options="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009"-->
                     <property name="outputToConsole">true</property>      
        </configuration>
     </container>
-     <container qualifier="arquillian-container-chameleon-payara5-remote" default="true">
+     <container qualifier="container-chameleon-payara5-remote" default="false">
         <configuration> 
                     <property name="chameleonTarget">payara:5.181:remote</property>
                    <!-- start your payara first with  

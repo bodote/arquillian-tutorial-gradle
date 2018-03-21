@@ -1,5 +1,5 @@
-if (!hasProperty('buildProfile')) ext.buildProfile = 'arquillian-container-chameleon-payara5-remote'
-logger.quiet "using buildProfile=${buildProfile}; to use a different profile , use this command line: 'gradle build -PbuildProfile=arquillian-wildfly-embedded' "
+if (!hasProperty('buildProfile')) ext.buildProfile = 'arquillian-container-chameleon-payara5-managed'
+logger.quiet "using buildProfile=${buildProfile}; to use a different profile , use this command line: 'gradle build -PbuildProfile=arquillian-container-chameleon-wf12-remote' "
 logger.quiet "my Project dir is: ${projectDir}"
 apply plugin: 'java'
 apply plugin: 'maven'
@@ -75,12 +75,21 @@ dependencies {
 				] // needed by src/mein/resources/arquillian.xml
 			test.dependsOn resolveWildfly
 			break;	
-		case "arquillian-container-chameleon-payara5": logger.info "***************************dep arquillian-container-chameleon-payara5"; 
+		case "arquillian-container-chameleon-wf12-remote": logger.info "***************************dep arquillian-container-chameleon-wf12-remote"; 
+			//http://www.lordofthejars.com/2016/09/arquillian-chameleon-for-sake-of.html
+    		    testCompile group: 'org.arquillian.container', name: 'arquillian-container-chameleon', version: '1.0.0.CR1'
+     		testCompile group: 'org.arquillian.container', name: 'arquillian-chameleon-junit-container-starter', version: '1.0.0.CR1'
+			test.systemProperties = ['arquillian.launch': 'container-chameleon-wf12-remote',
+	 		                         'java.util.logging.manager':'org.jboss.logmanager.LogManager'		    					
+				] // needed by src/mein/resources/arquillian.xml
+			break;	
+
+		case "arquillian-container-chameleon-payara5-managed": logger.info "***************************dep arquillian-container-chameleon-payara5"; 
 			//http://www.lordofthejars.com/2016/09/arquillian-chameleon-for-sake-of.html
     		testCompile group: 'org.arquillian.container', name: 'arquillian-container-chameleon', version: '1.0.0.CR1'
      		testCompile group: 'org.arquillian.container', name: 'arquillian-chameleon-junit-container-starter', version: '1.0.0.CR1'
      		testCompile group: 'org.jboss.logmanager', name: 'jboss-logmanager', version: '2.0.9.Final'
-			test.systemProperties = ['arquillian.launch': 'arquillian-container-chameleon-payara5',
+			test.systemProperties = ['arquillian.launch': 'container-chameleon-payara5-managed',
 	 		                         'java.util.logging.manager':'org.jboss.logmanager.LogManager'		    					
 				] // needed by src/mein/resources/arquillian.xml
 			break;	
@@ -89,7 +98,7 @@ dependencies {
      		testCompile group: 'org.arquillian.container', name: 'arquillian-container-chameleon', version: '1.0.0.CR1'
      		testCompile group: 'org.arquillian.container', name: 'arquillian-chameleon-junit-container-starter', version: '1.0.0.CR1'
      		testCompile group: 'org.jboss.logmanager', name: 'jboss-logmanager', version: '2.0.9.Final'
-			test.systemProperties = ['arquillian.launch': 'arquillian-container-chameleon-payara5-remote',
+			test.systemProperties = ['arquillian.launch': 'container-chameleon-payara5-remote',
 			                         'java.util.logging.manager':'org.jboss.logmanager.LogManager'		    					
 				] // needed by src/mein/resources/arquillian.xml
 			logger.quiet "################you need a running payara5 server on your machine!################"

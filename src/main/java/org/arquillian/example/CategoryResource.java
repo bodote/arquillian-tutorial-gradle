@@ -16,7 +16,7 @@ public class CategoryResource {
 	@GET()
 	@Path("/all")
 	public Response findAll() {
-		System.err.println("findall");
+		System.err.println("##############################I am on the SERVER - Side");
 		CategoryEntity catEnt = new CategoryEntity();
 		catEnt.setaValue("test");
 

@@ -10,3 +10,4 @@ build
 /.classpath
 
 
+/db-schema-create.jpa.ddl

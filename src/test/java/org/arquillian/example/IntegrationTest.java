@@ -3,6 +3,7 @@ package org.arquillian.example;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -65,8 +66,21 @@ public class IntegrationTest {
 		// assertEquals(System.getProperty("java.util.logging.manager"),
 		// "org.jboss.logmanager.LogManager");;
 		// assertNotNull(System.getProperty("project.baseDir"));
+		String arquillianLaunch = System.getProperty("arquillian.launch");
+		String persistenceXMLFile =null;
+		switch (arquillianLaunch) {
+		case "container-chameleon-wf12-remote":
+			persistenceXMLFile = "persistence-integration-wildfly12.xml";
+			break;
+		case "container-chameleon-payara5-managed":
+			persistenceXMLFile = "persistence-integration-payara5.xml";
+			break;
+		default:
+			fail("no persistence.xml defined");
+			break;
+		}
 		return ShrinkWrap.create(WebArchive.class).addPackages(true, "org.arquillian.example")
-				.addAsResource("persistence-integration.xml", "META-INF/persistence.xml")
+				.addAsResource(persistenceXMLFile, "META-INF/persistence.xml")
 				.addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
 
 	}
