@@ -4,6 +4,7 @@ logger.quiet "my Project dir is: ${projectDir}"
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'war'
+apply plugin: 'eclipse'
 
 group = 'org.arquillian.example'
 version = '1.0-SNAPSHOT'
