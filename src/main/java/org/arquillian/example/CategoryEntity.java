@@ -9,7 +9,7 @@ public class CategoryEntity {
 	@Id
 	@GeneratedValue
 	private Long id;
-	
+
 	private String aValue;
 
 	public Long getId() {
@@ -27,6 +27,5 @@ public class CategoryEntity {
 	public void setaValue(String aValue) {
 		this.aValue = aValue;
 	}
-	
-	
+
 }

@@ -55,11 +55,20 @@
                     <property name="serverConfig">standalone-full.xml</property>
     	</configuration>
      </container>
-    <container qualifier="arquillian-container-chameleon-payara5" default="true">
+    <container qualifier="arquillian-container-chameleon-payara5" default="false">
         <configuration> 
                     <property name="chameleonTarget">payara:5.181:managed</property>
                     <property name="debug">true</property><!-- default port is 9009 you might need to tweak  payaras domain.xml : debug-options="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009"-->
                     <property name="outputToConsole">true</property>      
+       </configuration>
+    </container>
+     <container qualifier="arquillian-container-chameleon-payara5-remote" default="true">
+        <configuration> 
+                    <property name="chameleonTarget">payara:5.181:remote</property>
+                   <!-- start your payara first with  
+                   ./bin/asadmin start-domain \-\-debug
+                    default port is 9009 you might need to tweak  payaras domain.xml : debug-options="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009"-->
+                         
        </configuration>
     </container>
      <container qualifier="weld-embedded" default="false">

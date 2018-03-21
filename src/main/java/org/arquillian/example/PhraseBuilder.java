@@ -3,18 +3,19 @@ package org.arquillian.example;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.annotation.PostConstruct;
 
 public class PhraseBuilder {
-    private Map<String, String> templates;
+	private Map<String, String> templates;
 
-    public String buildPhrase(String id, Object... args) {
-        return MessageFormat.format(templates.get(id), args);
-    }
+	public String buildPhrase(String id, Object... args) {
+		return MessageFormat.format(templates.get(id), args);
+	}
 
-    @PostConstruct
-    public void initialize() {
-        templates = new HashMap<String, String>();
-        templates.put("hello", "Hello, {0}!");
-    }
+	@PostConstruct
+	public void initialize() {
+		templates = new HashMap<String, String>();
+		templates.put("hello", "Hello, {0}!");
+	}
 }

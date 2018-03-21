@@ -1,4 +1,4 @@
-if (!hasProperty('buildProfile')) ext.buildProfile = 'arquillian-container-chameleon-payara5'
+if (!hasProperty('buildProfile')) ext.buildProfile = 'arquillian-container-chameleon-payara5-remote'
 logger.quiet "using buildProfile=${buildProfile}; to use a different profile , use this command line: 'gradle build -PbuildProfile=arquillian-wildfly-embedded' "
 logger.quiet "my Project dir is: ${projectDir}"
 apply plugin: 'java'
@@ -77,17 +77,30 @@ dependencies {
 			break;	
 		case "arquillian-container-chameleon-payara5": logger.info "***************************dep arquillian-container-chameleon-payara5"; 
 			//http://www.lordofthejars.com/2016/09/arquillian-chameleon-for-sake-of.html
+    		testCompile group: 'org.arquillian.container', name: 'arquillian-container-chameleon', version: '1.0.0.CR1'
+     		testCompile group: 'org.arquillian.container', name: 'arquillian-chameleon-junit-container-starter', version: '1.0.0.CR1'
+     		testCompile group: 'org.jboss.logmanager', name: 'jboss-logmanager', version: '2.0.9.Final'
+			test.systemProperties = ['arquillian.launch': 'arquillian-container-chameleon-payara5',
+	 		                         'java.util.logging.manager':'org.jboss.logmanager.LogManager'		    					
+				] // needed by src/mein/resources/arquillian.xml
+			break;	
+		case "arquillian-container-chameleon-payara5-remote": logger.info "***************************dep arquillian-container-chameleon-payara5"; 
+			//http://www.lordofthejars.com/2016/09/arquillian-chameleon-for-sake-of.html
      		testCompile group: 'org.arquillian.container', name: 'arquillian-container-chameleon', version: '1.0.0.CR1'
      		testCompile group: 'org.arquillian.container', name: 'arquillian-chameleon-junit-container-starter', version: '1.0.0.CR1'
-     		//testCompile group: 'org.jboss.logmanager', name: 'jboss-logmanager', version: '2.0.9.Final'
-			test.systemProperties = ['arquillian.launch': 'arquillian-container-chameleon-payara5'			    					
+     		testCompile group: 'org.jboss.logmanager', name: 'jboss-logmanager', version: '2.0.9.Final'
+			test.systemProperties = ['arquillian.launch': 'arquillian-container-chameleon-payara5-remote',
+			                         'java.util.logging.manager':'org.jboss.logmanager.LogManager'		    					
 				] // needed by src/mein/resources/arquillian.xml
+			logger.quiet "################you need a running payara5 server on your machine!################"
 			break;	
      	case "arquillian-weld-embedded":
      	    // this config works only for Integrationtests, that uses CDI only, but NOT JPA and NOT JAX-RS
      	 	testCompile group: 'org.jboss.arquillian.container', name: 'arquillian-weld-ee-embedded-1.1', version: '1.0.0.Final'
      	 	testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
      		testCompile group: 'org.jboss.weld', name: 'weld-core', version: '2.4.5.Final';
+     		testCompile group: 'org.jboss.logmanager', name: 'jboss-logmanager' , version: '2.1.0.Final';
+   
      		test.systemProperties = ['arquillian.launch': 'weld-embedded'			    					
 				] // needed by src/main/resources/arquillian.xml
 			//test.dependsOn resolveWildfly
