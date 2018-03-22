@@ -2,14 +2,19 @@ package org.arquillian.example;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonStructure;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation.Builder;
@@ -68,7 +73,7 @@ public class IntegrationTest {
 		// "org.jboss.logmanager.LogManager");;
 		// assertNotNull(System.getProperty("project.baseDir"));
 		String arquillianLaunch = System.getProperty("arquillian.launch");
-		String persistenceXMLFile =null;
+		String persistenceXMLFile = null;
 		switch (arquillianLaunch) {
 		case "container-chameleon-wf12-remote":
 			persistenceXMLFile = "persistence-integration-wildfly12.xml";
@@ -101,11 +106,15 @@ public class IntegrationTest {
 		final Client resourceClient = ClientBuilder.newClient();
 		Builder builder = resourceClient.target(myUrl.toURI()).request(MediaType.APPLICATION_JSON);
 		Response response = builder.get();
-		JsonObject jsonMwssage = response.readEntity(JsonObject.class);
+		JsonObject model = Json.createObjectBuilder().add("lastName", "Mayer").add("firstName", "Duke").build();
+
+		JsonReader reader = Json.createReader(new StringReader(response.readEntity(String.class)));
+		JsonStructure jsonStruct = reader.read();
 
 		assertThat(response.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
+		String fname = jsonStruct.asJsonObject().getString("firstName");
 
-		assertThat(jsonMwssage.get("firstName"), is(equalTo("Duke")));
+		assertEquals(model, jsonStruct.asJsonObject());
 	}
 
 }
