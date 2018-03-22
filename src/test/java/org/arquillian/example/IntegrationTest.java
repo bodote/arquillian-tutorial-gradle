@@ -107,8 +107,8 @@ public class IntegrationTest {
 		Builder builder = resourceClient.target(myUrl.toURI()).request(MediaType.APPLICATION_JSON);
 		Response response = builder.get();
 		JsonObject model = Json.createObjectBuilder().add("lastName", "Mayer").add("firstName", "Duke").build();
-
-		JsonReader reader = Json.createReader(new StringReader(response.readEntity(String.class)));
+		String responseString = response.readEntity(String.class);
+		JsonReader reader = Json.createReader(new StringReader(responseString));
 		JsonStructure jsonStruct = reader.read();
 
 		assertThat(response.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
