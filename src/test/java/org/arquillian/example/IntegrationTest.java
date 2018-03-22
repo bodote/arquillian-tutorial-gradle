@@ -67,7 +67,7 @@ public class IntegrationTest {
 		// "org.jboss.logmanager.LogManager");;
 		// assertNotNull(System.getProperty("project.baseDir"));
 		String arquillianLaunch = System.getProperty("arquillian.launch");
-		String persistenceXMLFile =null;
+		String persistenceXMLFile = null;
 		switch (arquillianLaunch) {
 		case "container-chameleon-wf12-remote":
 			persistenceXMLFile = "persistence-integration-wildfly12.xml";
@@ -98,7 +98,7 @@ public class IntegrationTest {
 		String myUrlString = url.toString().concat("rest/myget/all");
 		URL myUrl = new URL(myUrlString);
 		final Client resourceClient = ClientBuilder.newClient();
-		Builder builder = resourceClient.target(myUrl.toURI()).request(MediaType.TEXT_PLAIN);
+		Builder builder = resourceClient.target(myUrl.toURI()).request(MediaType.APPLICATION_JSON);
 		Response response = builder.get();
 		String message = response.readEntity(String.class);
 
