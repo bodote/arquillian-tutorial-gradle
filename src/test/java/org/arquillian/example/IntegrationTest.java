@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation.Builder;
@@ -95,16 +96,16 @@ public class IntegrationTest {
 	@Test
 	@RunAsClient
 	public void findAllCategories() throws MalformedURLException, URISyntaxException {
-		String myUrlString = url.toString().concat("rest/myget/all");
+		String myUrlString = url.toString().concat("catres");
 		URL myUrl = new URL(myUrlString);
 		final Client resourceClient = ClientBuilder.newClient();
-		Builder builder = resourceClient.target(myUrl.toURI()).request(MediaType.TEXT_PLAIN);
+		Builder builder = resourceClient.target(myUrl.toURI()).request(MediaType.APPLICATION_JSON);
 		Response response = builder.get();
-		String message = response.readEntity(String.class);
+		JsonObject jsonMwssage = response.readEntity(JsonObject.class);
 
 		assertThat(response.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
 
-		assertThat(message, is(equalTo("hello")));
+		assertThat(jsonMwssage.get("firstName"), is(equalTo("Duke")));
 	}
 
 }
