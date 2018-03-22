@@ -113,7 +113,7 @@ public class IntegrationTest {
 
 		assertThat(response.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
 		String fname = jsonStruct.asJsonObject().getString("firstName");
-
+		// test
 		assertEquals(model, jsonStruct.asJsonObject());
 	}
 
