@@ -50,7 +50,15 @@ dependencies {
      testCompile group: 'com.h2database', name: 'h2', version:'1.4.196'
      testCompile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.13.Final'
      testCompile group: 'org.glassfish', name: 'javax.json', version: '1.1.2' // needed by RestClient and  Json.createObjectBuilder
-  
+  	//if (true){
+  	    testCompile 'org.glassfish.jersey.core:jersey-client:2.25.1'
+  	    testCompile 'org.glassfish.jersey.media:jersey-media-json-processing:2.25.1'
+  	    testCompile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.1'
+  	    compile group: 'org.jboss.resteasy', name: 'resteasy-jackson-provider', version: '3.5.0.Final'
+
+  	    
+  //	}
+
     switch ( buildProfile ) {
      	case "arquillian-wildfly-managed": logger.info "dep wildfly-managed";
      	    //A managed container is similar to a remote container, except its lifecycle (startup/shutdown) is also managed by Arquillian. 

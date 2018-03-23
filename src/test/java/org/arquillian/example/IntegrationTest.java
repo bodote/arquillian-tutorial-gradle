@@ -10,11 +10,15 @@ import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonStructure;
+import javax.json.JsonValue;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation.Builder;
@@ -103,18 +107,46 @@ public class IntegrationTest {
 	public void findAllCategories() throws MalformedURLException, URISyntaxException {
 		String myUrlString = url.toString().concat("catres");
 		URL myUrl = new URL(myUrlString);
+		Response response = getResponse(myUrl);
+		JsonStructure jsonStruct=null;
+		assertEquals(MediaType.APPLICATION_JSON_TYPE, response.getMediaType());
+		assertThat(response.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
+		try {
+			Map jsonMap=  getResponseJsonDirect( response) ;
+			 System.err.println("Map #############################"+ jsonMap);
+		} catch (Exception e) {
+			 e.printStackTrace(System.err);
+			 System.err.println("ERRor#############################");
+			 response = getResponse(myUrl);
+			 jsonStruct = getJsonViaStringReader(response);
+		}
+	
+
+		String fname = jsonStruct.asJsonObject().getString("firstName");
+		JsonObject model = Json.createObjectBuilder().add("lastName", "Mayer").add("firstName", "Duke").build();
+
+		assertEquals(model, jsonStruct.asJsonObject());
+	}
+
+	private JsonStructure getJsonViaStringReader(Response response) {
+		String responseString = response.readEntity(String.class);
+		 System.err.println("++++++++++++++++responseString:\n"+responseString);
+		JsonReader reader = Json.createReader(new StringReader(responseString));
+		JsonStructure jsonStruct = reader.read();
+		return jsonStruct;
+	}
+
+	private Response getResponse(URL myUrl) throws URISyntaxException {
 		final Client resourceClient = ClientBuilder.newClient();
 		Builder builder = resourceClient.target(myUrl.toURI()).request(MediaType.APPLICATION_JSON);
 		Response response = builder.get();
-		JsonObject model = Json.createObjectBuilder().add("lastName", "Mayer").add("firstName", "Duke").build();
-		String responseString = response.readEntity(String.class);
-		JsonReader reader = Json.createReader(new StringReader(responseString));
-		JsonStructure jsonStruct = reader.read();
-
-		assertThat(response.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
-		String fname = jsonStruct.asJsonObject().getString("firstName");
-		// test
-		assertEquals(model, jsonStruct.asJsonObject());
+		return response;
+	}
+	private HashMap getResponseJsonDirect(Response response) throws URISyntaxException {
+		
+		HashMap json = (HashMap) response.readEntity(HashMap.class);
+		
+		return json;
 	}
 
 }
