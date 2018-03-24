@@ -2,7 +2,7 @@
 <persistence version="2.0"
 	xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
-	<persistence-unit name="examplePU">
+	<persistence-unit name="unitTest">
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 		<class>org.arquillian.example.CategoryEntity</class>
 		
@@ -15,8 +15,23 @@
 			<property name="hibernate.connection.url" value="jdbc:h2:mem:test" />
 			<property name="hibernate.connection.username" value="sa" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
-			
 			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
+			
+			<property name="javax.persistence.jdbc.show_sql" value="true" /> 
+			<property name="hibernate.hbm2ddl.import_files_sql_extractor" 
+			value="org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor" />
+         <!--seems that this 2 following properties  are mutually exclusive with the 3rd property: strange hibernate behaviour.....
+            <property name="javax.persistence.schema-generation.scripts.action"
+				value="create" />
+				
+            <property name="javax.persistence.schema-generation.scripts.create-target" 
+            value="utest-db-schema-create.jpa.ddl" /> 
+          	
+		   <property name="javax.persistence.schema-generation.create-script-source"
+				value="META-INF/utest-db-schema-create.jpa.ddl" /> 
+		  -->	
+		        
+			
 		</properties>
 	</persistence-unit>
 

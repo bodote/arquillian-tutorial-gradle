@@ -21,7 +21,7 @@ public class CategoryEntityTest {
 	@Before
 	public void init() {
 
-		factory = Persistence.createEntityManagerFactory("examplePU");
+		factory = Persistence.createEntityManagerFactory("unitTest");
 		em = factory.createEntityManager();
 	}
 

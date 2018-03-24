@@ -125,8 +125,30 @@ dependencies {
 				] // needed by src/main/resources/arquillian.xml
 			//test.dependsOn resolveWildfly
      		break;
-     	default:
-     		throw new GradleException('no valid profile specified');
+     	
      		 
      }
+
+war {
+        webInf { 
+             from ( 'src/main/resources' )  {
+        			into('classes/META-INF') 
+        		} 
+        	switch ( buildProfile ) {
+        		case "arquillian-container-chameleon-wf12-remote":
+               rename { fileName ->
+    				fileName == "persistence-integration-wildfly12.xml" ? "persistence.xml" : fileName;
+  			   }
+  			   break;
+  			case "arquillian-container-chameleon-payara5-managed": 
+  			   rename { fileName ->
+    				fileName == "persistence-integration-payara5.xml" ? "persistence.xml" : fileName;
+  			   }
+  			   break;
+  			default:
+  				logger.error "oh no no valid profile specified ${buildProfile}"
+     		    throw new GradleException('!no valid profile specified');
+  			}
+         }
+       }
 }
