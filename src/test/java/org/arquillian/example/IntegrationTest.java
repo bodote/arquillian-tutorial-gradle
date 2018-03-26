@@ -23,6 +23,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -35,6 +36,10 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 @RunWith(Arquillian.class)
 public class IntegrationTest {
@@ -108,29 +113,40 @@ public class IntegrationTest {
 		String myUrlString = url.toString().concat("catres");
 		URL myUrl = new URL(myUrlString);
 		Response response = getResponse(myUrl);
-		JsonStructure jsonStruct=null;
+		response.bufferEntity();
+		JsonStructure jsonStruct = null;
 		assertEquals(MediaType.APPLICATION_JSON_TYPE, response.getMediaType());
+
 		assertThat(response.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
+		JsonObject model = Json.createObjectBuilder().add("lastName", "Mayer").add("firstName", "Duke").build();
+
 		try {
-			Map jsonMap=  getResponseJsonDirect( response) ;
-			 System.err.println("Map #############################"+ jsonMap);
+			Map jsonMap = getResponseMap(response);
+			//Object jsonO = getResponseJsonObject(response);
+			String className = "javax.json.JsonObject";
+			JavaType dtoType = TypeFactory.defaultInstance().constructFromCanonical(className);
+			Object dto = new ObjectMapper().readValue(response.readEntity(String.class), dtoType);
+			assert dto.getClass().equals(dtoType.getRawClass());
+			System.err.println("Map #############################" + jsonMap + "josO"+dto);
 		} catch (Exception e) {
-			 e.printStackTrace(System.err);
-			 System.err.println("ERRor#############################");
-			 response = getResponse(myUrl);
-			 jsonStruct = getJsonViaStringReader(response);
+			e.printStackTrace(System.err);
+			
+			System.err.println("ERRor#############################");
+			response = getResponse(myUrl);
+			jsonStruct = getJsonViaStringReader(response);
+		} finally {
+			response.close();
 		}
-	
 
 		String fname = jsonStruct.asJsonObject().getString("firstName");
-		JsonObject model = Json.createObjectBuilder().add("lastName", "Mayer").add("firstName", "Duke").build();
+		
 
 		assertEquals(model, jsonStruct.asJsonObject());
 	}
 
 	private JsonStructure getJsonViaStringReader(Response response) {
 		String responseString = response.readEntity(String.class);
-		 System.err.println("++++++++++++++++responseString:\n"+responseString);
+		System.err.println("++++++++++++++++responseString:\n" + responseString);
 		JsonReader reader = Json.createReader(new StringReader(responseString));
 		JsonStructure jsonStruct = reader.read();
 		return jsonStruct;
@@ -142,10 +158,18 @@ public class IntegrationTest {
 		Response response = builder.get();
 		return response;
 	}
-	private HashMap getResponseJsonDirect(Response response) throws URISyntaxException {
-		
-		HashMap json = (HashMap) response.readEntity(HashMap.class);
-		
+
+	private Map getResponseMap(Response response) throws URISyntaxException {
+
+		Map json = response.readEntity(HashMap.class);
+
+		return json;
+	}
+
+	private Object getResponseJsonObject(Response response) throws URISyntaxException {
+
+		Object json = response.readEntity(Object.class);
+
 		return json;
 	}
 

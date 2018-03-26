@@ -25,7 +25,13 @@ public class CategoryResource {
 		catEnt.setaValue("test");
 
 		em.persist(catEnt);
-		JsonObject model = Json.createObjectBuilder().add("firstName", "Duke").add("lastName", "Mayer").build();
+		JsonObject model = Json.createObjectBuilder().add("firstName", "Duke").add("lastName", "Mayer")
+				.add("StringArray", Json.createArrayBuilder().add("string1").add("string2"))
+				.add("jsonObjectArray",
+						Json.createArrayBuilder().add(
+								Json.createObjectBuilder().add("object1", "value1").add("object2", "String2"))
+								)
+				.build();
 		return Response.status(Response.Status.OK).entity(model).build();
 	}
 }
