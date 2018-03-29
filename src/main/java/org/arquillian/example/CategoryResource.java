@@ -22,7 +22,7 @@ public class CategoryResource {
 
 		System.err.println("##############################I am on the SERVER - Side");
 		CategoryEntity catEnt = new CategoryEntity();
-		catEnt.setaValue("test");
+		catEnt.setaValue("testx");
 
 		em.persist(catEnt);
 		JsonObject model = Json.createObjectBuilder().add("firstName", "Duke").add("lastName", "Mayer")

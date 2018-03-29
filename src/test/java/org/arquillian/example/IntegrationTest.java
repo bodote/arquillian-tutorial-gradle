@@ -60,6 +60,7 @@ public class IntegrationTest {
 	// -Djava.util.logging.manager=org.jboss.logmanager.LogManager
 	// -Dproject.baseDir=${workspace_loc:<myEclipseProjectName>}
 	// -Darquillian.debug=true
+	// -Darquillian.launch=container-chameleon-wf12-remote
 	// but when run from command line with gradle , these variables will be set in
 	// the gradle.build file
 
@@ -121,19 +122,11 @@ public class IntegrationTest {
 		JsonObject model = Json.createObjectBuilder().add("lastName", "Mayer").add("firstName", "Duke").build();
 
 		try {
-			Map jsonMap = getResponseMap(response);
-			//Object jsonO = getResponseJsonObject(response);
-			String className = "javax.json.JsonObject";
-			JavaType dtoType = TypeFactory.defaultInstance().constructFromCanonical(className);
-			Object dto = new ObjectMapper().readValue(response.readEntity(String.class), dtoType);
-			assert dto.getClass().equals(dtoType.getRawClass());
-			System.err.println("Map #############################" + jsonMap + "josO"+dto);
+			jsonStruct = getJsonViaStringReader(response);
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
-			
 			System.err.println("ERRor#############################");
-			response = getResponse(myUrl);
-			jsonStruct = getJsonViaStringReader(response);
+			
 		} finally {
 			response.close();
 		}
@@ -141,12 +134,11 @@ public class IntegrationTest {
 		String fname = jsonStruct.asJsonObject().getString("firstName");
 		
 
-		assertEquals(model, jsonStruct.asJsonObject());
+		assertEquals(fname, "Duke");
 	}
 
 	private JsonStructure getJsonViaStringReader(Response response) {
 		String responseString = response.readEntity(String.class);
-		System.err.println("++++++++++++++++responseString:\n" + responseString);
 		JsonReader reader = Json.createReader(new StringReader(responseString));
 		JsonStructure jsonStruct = reader.read();
 		return jsonStruct;
@@ -159,18 +151,6 @@ public class IntegrationTest {
 		return response;
 	}
 
-	private Map getResponseMap(Response response) throws URISyntaxException {
 
-		Map json = response.readEntity(HashMap.class);
-
-		return json;
-	}
-
-	private Object getResponseJsonObject(Response response) throws URISyntaxException {
-
-		Object json = response.readEntity(Object.class);
-
-		return json;
-	}
 
 }

@@ -1,10 +1,11 @@
-if (!hasProperty('buildProfile')) ext.buildProfile = 'arquillian-container-chameleon-payara5-managed'
-logger.quiet "using buildProfile=${buildProfile}; to use a different profile , use this command line: 'gradle build -PbuildProfile=arquillian-container-chameleon-wf12-remote' "
+if (!hasProperty('buildProfile')) ext.buildProfile =  'arquillian-container-chameleon-wf12-remote'
+logger.quiet "using buildProfile=${buildProfile}; to use a different profile , use this command line: \
+ 'gradle build -PbuildProfile=arquillian-container-chameleon-wf12-remote' oder 'arquillian-container-chameleon-payara5-managed'"
 logger.quiet "my Project dir is: ${projectDir}"
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'war'
-apply plugin: 'eclipse'
+
 
 group = 'org.arquillian.example'
 version = '1.0-SNAPSHOT'
@@ -153,4 +154,37 @@ war {
   			}
          }
        }
+       
 }
+
+
+war.doLast {
+      copy {
+        println 'Copy from ${libsDir.getPath()} into /Users/bodo/wildfly-12.0.0.Final/standalone/deployments/'
+        from war.archivePath
+        into "/Users/bodo/wildfly-12.0.0.Final/standalone/deployments/"
+        include "*.war"
+    }
+}
+
+
+clean {
+    logger.quiet "#########delete from ${libsDir.getPath()} and /Users/bodo/wildfly-12.0.0.Final/standalone/deployments/${war.archiveName}"
+    outputs.upToDateWhen { false }
+    delete "${buildDir}/"+war.archiveName
+    delete "/Users/bodo/wildfly-12.0.0.Final/standalone/data"
+    delete "/Users/bodo/wildfly-12.0.0.Final/standalone/tmp"
+    delete "/Users/bodo/wildfly-12.0.0.Final/standalone/deployments/${war.archiveName}"
+    copy {
+        from  "/Users/bodo/wildfly-12.0.0.Final/standalone/configuration/standalone_xml_history/standalone-ee8.initial.xml"
+        into "/Users/bodo/wildfly-12.0.0.Final/standalone/configuration/"
+        rename { fileName ->
+    				fileName == "standalone-ee8.initial.xml" ? "standalone-ee8.xml" : fileName;
+  		}
+         
+    }
+
+  
+}
+ 	
+  

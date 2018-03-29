@@ -12,12 +12,13 @@
 
 			<property name="hibernate.connection.driver_class" value="org.h2.Driver" />
 
-			<property name="hibernate.connection.url" value="jdbc:h2:mem:test" />
+			<property name="hibernate.connection.url" value="jdbc:h2:mem:test;LOCK_TIMEOUT=1000" />
 			<property name="hibernate.connection.username" value="sa" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
 			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
 			
 			<property name="javax.persistence.jdbc.show_sql" value="true" /> 
+			
 			<property name="hibernate.hbm2ddl.import_files_sql_extractor" 
 			value="org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor" />
          <!--seems that this 2 following properties  are mutually exclusive with the 3rd property: strange hibernate behaviour.....
