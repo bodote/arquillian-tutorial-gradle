@@ -2,11 +2,11 @@ package org.arquillian.example;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
+import javax.persistence.CacheRetrieveMode;
+import javax.persistence.CacheStoreMode;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -27,6 +27,8 @@ public class CategoryEntityTest {
 	public void init() {
 		factory = Persistence.createEntityManagerFactory("unitTest");
 		em = factory.createEntityManager();
+	
+		
 	}
 
 	@Test
@@ -59,19 +61,20 @@ public class CategoryEntityTest {
 		
 	}
 
-	private void changeFirstEntryWithDelay(List<CategoryEntity> catEntList, Integer delay, String value) {
-		changeFirstEntity(catEntList, (i) -> {
+	private void changeFirstEntryWithDelay(List<CategoryEntity> catEntList, Integer delayTime, String value) {
+		changeFirstEntityafterBackEndCall(catEntList, (time) -> {
 			try {
-				Thread.sleep(i);
+				Thread.sleep(time);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}, delay, value);
+		}, delayTime, value);
 	}
 
 	private String getFirstEntityValueAgain() {		
 	    em.clear();
 		Query q2 = em.createQuery("select t from CategoryEntity t");
+		
 		List<CategoryEntity> catEntList2 = q2.getResultList();
 		String firstEntityValue = catEntList2.get(0).getaValue();
 		System.out.println(Thread.currentThread().getName()+"-------catEntList2(0).id:"+ catEntList2.get(0).getId());
@@ -79,20 +82,23 @@ public class CategoryEntityTest {
 		return firstEntityValue;
 	}
 
-	private void changeFirstEntity(List<CategoryEntity> catEntList, IntConsumer consumer, Integer parameter,String newValue) {
+	private void changeFirstEntityafterBackEndCall(List<CategoryEntity> catEntList, IntConsumer backEndCall, Integer backEndCallParameter,String newValue) {
 		System.out.println(Thread.currentThread().getName()+"-------bbbbbbbefore transaction AAANNNND Read  start  value:"+newValue);
+		//create and use a NEW Entity Manager to test the cache behavior for distinct EntityManager instances
 		EntityManager myEntManager = factory.createEntityManager();
-		myEntManager.getTransaction().begin();
-		
+		myEntManager.getTransaction().begin();		
+		//get the first Object from DB
 		CategoryEntity myEntity = myEntManager.find(CategoryEntity.class, catEntList.get(0).getId(),LockModeType.PESSIMISTIC_WRITE);
-		consumer.accept(parameter);
+		//call the back end , which will take a while
+		backEndCall.accept(backEndCallParameter);
 		
 		System.out.println(Thread.currentThread().getName()+"-------aaaaaaaafter transaction start  value:"+newValue);
+		//change the 1st objects value
 		myEntity.setaValue(newValue);
 		myEntManager.merge(myEntity);
 		CategoryEntity myEntity2 = myEntManager.find(CategoryEntity.class, catEntList.get(0).getId());
 		System.out.println(Thread.currentThread().getName()+"------acacacacacacacac find after merge/commit  value:"+myEntity2.getaValue());
-		
+		//write back to DB
 		myEntManager.getTransaction().commit();
 		myEntManager.close();
 		System.out.println(Thread.currentThread().getName()+"------acacacacacacacac after merge/commit  value:"+myEntity.getaValue());
