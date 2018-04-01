@@ -18,6 +18,7 @@ tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
 }
 repositories {
+	mavenLocal()
  	mavenCentral()
    //maven { url "http://repo.maven.apache.org/maven2" }
      
@@ -46,21 +47,34 @@ resolveWildfly.onlyIf {
 dependencies {
      providedCompile group: 'javax', name: 'javaee-api', version: '8.0'
      testCompile group: 'junit', name: 'junit', version:'4.12'
-     testCompile group: 'org.jboss.resteasy', name: 'resteasy-client', version: '3.5.0.Final'
+     
      testCompile group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
      testCompile group: 'com.h2database', name: 'h2', version:'1.4.196'
      testCompile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.13.Final'
-     testCompile group: 'org.glassfish', name: 'javax.json', version: '1.1.2' // needed by RestClient and  Json.createObjectBuilder
-  	//if (true){
+     testCompile group: 'org.jboss.resteasy', name: 'resteasy-client', version: '3.5.0.Final'
+     testCompile group: 'org.jboss.resteasy', name: 'resteasy-jackson-provider', version: '3.5.0.Final'
+     
+     if (false){
+       testCompile 'org.apache.johnzon:johnzon:1.1.7'
+       testCompile 'org.apache.johnzon:johnzon-mapper:1.1.7'
+       testCompile 'org.apache.johnzon:johnzon-core:1.1.7'
+       testCompile 'org.apache.johnzon:johnzon-jaxrs:1.1.7'
+       testCompile 'org.apache.johnzon:johnzon-jsonb:1.1.7'
+       testCompile group: 'org.apache.geronimo.specs', name: 'geronimo-json_1.1_spec', version: '1.0'
+       testCompile group: 'org.apache.geronimo.specs', name: 'geronimo-jsonb_1.0_spec', version: '1.0'
+     } else {
+       testCompile 'org.eclipse:yasson:1.0.2-SNAPSHOT'  
+       testCompile 'javax.json.bind:javax.json.bind-api:1.0'   
+       testCompile group: 'org.glassfish', name: 'javax.json', version: '1.1.2'  
+     }
+
+    
+     if (false){
   	    testCompile 'org.glassfish.jersey.core:jersey-client:2.25.1'
   	    testCompile 'org.glassfish.jersey.media:jersey-media-json-processing:2.25.1'
   	    testCompile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.1'
-  	    testCompile 'org.glassfish.jersey.media:jersey-media-json-jackson:2.25.1'
-  	    
-  	    testCompile group: 'org.jboss.resteasy', name: 'resteasy-jackson-provider', version: '3.5.0.Final'
-
-  	    
-  //	}
+  	    testCompile 'org.glassfish.jersey.media:jersey-media-json-jackson:2.25.1'	    
+     }
 
     switch ( buildProfile ) {
      	case "arquillian-wildfly-managed": logger.info "dep wildfly-managed";

@@ -2,9 +2,19 @@ package org.arquillian.example;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.List;
 import java.util.function.IntConsumer;
+import java.util.stream.Collectors;
 
+import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
+import javax.json.bind.annotation.JsonbTypeAdapter;
 import javax.persistence.CacheRetrieveMode;
 import javax.persistence.CacheStoreMode;
 import javax.persistence.EntityManager;
@@ -31,6 +41,21 @@ public class CategoryEntityTest {
 		
 	}
 
+	
+	@Test
+	public void jsonBMapEntity() throws FileNotFoundException {
+	
+		//Annotation @JsonbTypeAdapter(CategoryEntityJsonObjectAdapter.class) does not work due to a  bug in yasson
+		//JsonbConfig config = new JsonbConfig().withAdapters(new CategoryEntityJsonObjectAdapter());
+		
+		String responseJsonResourceName = "/post/client/request/json_catEnt.json";
+		InputStream inputStream = getClass().getResourceAsStream(responseJsonResourceName);
+		//String jsonString = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining("\n"));
+		CategoryEntity categoryEntity = JsonbBuilder.create().fromJson(inputStream, CategoryEntity.class);
+		
+		assertEquals("string1", categoryEntity.getaValue());
+		
+	}
 	@Test
 	public void createEntityAndCheckQuery() throws InterruptedException {
 		String initialValue = "initial String Value";
@@ -39,10 +64,11 @@ public class CategoryEntityTest {
 		assertEquals(initialValue,catEntList.get(0).getaValue() );
 		assertEquals(1, catEntList.size());
 		final String value1 ="new string1";
+		// one of the both concurrent attempts to change need to run in a separate thread:
 		Thread fstThread = new Thread() {
 		    public void run() {
 		    		System.out.println("------before wait fstThread");
-		    	   changeFirstEntryWithDelay(catEntList, 925, value1);
+		    	    changeFirstEntryWithDelay(catEntList, 925, value1);
 		    		System.out.println("-------after wait fstThread");
 		    }
 		};

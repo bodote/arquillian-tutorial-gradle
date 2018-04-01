@@ -6,24 +6,29 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+
 
 import javax.json.Json;
-import javax.json.JsonArray;
+
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonStructure;
-import javax.json.JsonValue;
+
+import javax.json.bind.JsonbBuilder;
+import javax.json.stream.JsonParsingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
+
 import javax.ws.rs.core.Response;
 
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -37,9 +42,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+
 
 @RunWith(Arquillian.class)
 public class IntegrationTest {
@@ -95,9 +98,12 @@ public class IntegrationTest {
 			fail("no persistence.xml defined");
 			break;
 		}
-		return ShrinkWrap.create(WebArchive.class).addPackages(true, "org.arquillian.example")
+		 WebArchive war = ShrinkWrap.create(WebArchive.class).addPackages(true, "org.arquillian.example")
 				.addAsResource(persistenceXMLFile, "META-INF/persistence.xml")
+				.addAsResource("status_ok.json","META-INF/status_ok.json")
 				.addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
+		 war.getContent();
+		 return war;
 
 	}
 
@@ -107,34 +113,55 @@ public class IntegrationTest {
 		System.out.println("init");
 		// resourceClient.resourcePath("/DB").delete();
 	}
-
 	@Test
 	@RunAsClient
+	public void postCategory() throws MalformedURLException, URISyntaxException, FileNotFoundException {
+		String myUrlString = url.toString().concat("catres");
+		final Client resourceClient = ClientBuilder.newClient();
+		Builder builder = resourceClient.target(new URL(myUrlString).toURI()).request(MediaType.APPLICATION_JSON);
+		String responseJsonResourceName = "post/client/request/json_catEnt_no_ID.json";
+		Class<CategoryEntity> clazz = CategoryEntity.class; 
+		CategoryEntity categoryEntityToPost = (clazz.cast(entityFromJsonResource(responseJsonResourceName, clazz)));
+		Response responseFromPost = builder.post(Entity.entity(categoryEntityToPost, MediaType.APPLICATION_JSON),
+                Response.class);
+		JsonStructure actualJsonResp = null;
+		try {
+			 actualJsonResp =  getJsonViaStringReader( responseFromPost);
+		} catch (JsonParsingException e){
+			fail(responseFromPost.toString() + "\n"+ e.getMessage() );
+		}
+		String expJsonFile = "post/response/status_ok.json";
+		JsonObject expectedJsonResp = Json.createReader(new FileReader(this.getClass().getClassLoader().getResource(expJsonFile).getFile())).readObject();
+		assertEquals(expectedJsonResp, actualJsonResp);
+		assertThat(responseFromPost.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
+		//------
+		findAllCategories() ;
+		
+	}
+
+	private <T> T entityFromJsonResource(String res, Class<T> clazz) throws FileNotFoundException {
+		return (T) JsonbBuilder.create().fromJson(new FileReader(this.getClass().getClassLoader().getResource(res).getFile()),clazz);
+	}
+	
 	public void findAllCategories() throws MalformedURLException, URISyntaxException {
 		String myUrlString = url.toString().concat("catres");
 		URL myUrl = new URL(myUrlString);
 		Response response = getResponse(myUrl);
 		response.bufferEntity();
-		JsonStructure jsonStruct = null;
+		JsonStructure actualJsonStructure = null;
 		assertEquals(MediaType.APPLICATION_JSON_TYPE, response.getMediaType());
-
 		assertThat(response.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
-		JsonObject model = Json.createObjectBuilder().add("lastName", "Mayer").add("firstName", "Duke").build();
-
+		JsonObject expectedJsonObject = Json.createObjectBuilder().add("aValue", "string1").add("id", "1").build();
 		try {
-			jsonStruct = getJsonViaStringReader(response);
+			actualJsonStructure = getJsonViaStringReader(response);
 		} catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.err.println("ERRor#############################");
-			
+			e.printStackTrace(System.err);	
+			fail("ERRor#############################");
 		} finally {
 			response.close();
 		}
-
-		String fname = jsonStruct.asJsonObject().getString("firstName");
-		
-
-		assertEquals(fname, "Duke");
+		String actualValue = actualJsonStructure.asJsonObject().getString("aValue");
+		assertEquals(expectedJsonObject.getString("aValue"), actualValue);
 	}
 
 	private JsonStructure getJsonViaStringReader(Response response) {

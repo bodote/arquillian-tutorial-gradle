@@ -1,10 +1,12 @@
 package org.arquillian.example;
 
+import javax.json.bind.annotation.JsonbTypeAdapter;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
+@JsonbTypeAdapter(CategoryEntityJsonObjectAdapter.class)
 public class CategoryEntity {
 	@Id
 	@GeneratedValue
