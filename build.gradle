@@ -1,6 +1,7 @@
 if (!hasProperty('buildProfile')) ext.buildProfile =  'arquillian-container-chameleon-wf12-remote'
 logger.quiet "using buildProfile=${buildProfile}; to use a different profile , use this command line: \
- 'gradle build -PbuildProfile=arquillian-container-chameleon-wf12-remote' oder 'arquillian-container-chameleon-payara5-managed'"
+ 'gradle build -PbuildProfile=arquillian-container-chameleon-wf12-remote' oder 'arquillian-container-chameleon-payara5-managed' \
+ or  'gradle build -PbuildProfile=arquillian-container-chameleon-payara5-managed' "
 logger.quiet "my Project dir is: ${projectDir}"
 apply plugin: 'java'
 apply plugin: 'maven'
@@ -9,7 +10,8 @@ apply plugin: 'war'
 
 group = 'org.arquillian.example'
 version = '1.0-SNAPSHOT'
-
+//ext.myWildfly =  'c://Users/bodo.teichmann/wildfly-12.0.0.Final'
+def myWildfly =  System.env.wildFly12Path
 description = """arquillian-tutorial-gradle"""
 
 sourceCompatibility = 1.8
@@ -63,7 +65,8 @@ dependencies {
        testCompile group: 'org.apache.geronimo.specs', name: 'geronimo-json_1.1_spec', version: '1.0'
        testCompile group: 'org.apache.geronimo.specs', name: 'geronimo-jsonb_1.0_spec', version: '1.0'
      } else {
-       testCompile 'org.eclipse:yasson:1.0.2-SNAPSHOT'  
+       //testCompile 'org.eclipse:yasson:1.0.2-SNAPSHOT'  
+       testCompile 'org.eclipse:yasson:1.0.2.1'
        testCompile 'javax.json.bind:javax.json.bind-api:1.0'   
        testCompile group: 'org.glassfish', name: 'javax.json', version: '1.1.2'  
      }
@@ -174,24 +177,35 @@ war {
 
 war.doLast {
       copy {
-        println 'Copy from ${libsDir.getPath()} into /Users/bodo/wildfly-12.0.0.Final/standalone/deployments/'
+        println 'Copy from ${libsDir.getPath()} into ${myWildfly}/standalone/deployments/'
         from war.archivePath
-        into "/Users/bodo/wildfly-12.0.0.Final/standalone/deployments/"
+        into "${myWildfly}/standalone/deployments/"
         include "*.war"
     }
 }
 
 
+
 clean {
-    logger.quiet "#########delete from ${libsDir.getPath()} and /Users/bodo/wildfly-12.0.0.Final/standalone/deployments/${war.archiveName}"
+    
+    logger.quiet "#########delete from ${libsDir.getPath()} and ${file (myWildfly + '/standalone')}"
     outputs.upToDateWhen { false }
     delete "${buildDir}/"+war.archiveName
-    delete "/Users/bodo/wildfly-12.0.0.Final/standalone/data"
-    delete "/Users/bodo/wildfly-12.0.0.Final/standalone/tmp"
-    delete "/Users/bodo/wildfly-12.0.0.Final/standalone/deployments/${war.archiveName}"
-    copy {
-        from  "/Users/bodo/wildfly-12.0.0.Final/standalone/configuration/standalone_xml_history/standalone-ee8.initial.xml"
-        into "/Users/bodo/wildfly-12.0.0.Final/standalone/configuration/"
+    delete "${myWildfly}/standalone/data"
+    delete "${myWildfly}/standalone/tmp"
+    delete "${myWildfly}/deployments/${war.archiveName}"
+   
+     File deployments = file( "${myWildfly}/standalone/deployments" )
+    
+     FileCollection collection = files { deployments.listFiles() }
+    
+     collection.collect { relativePath(it) }.sort().each {  
+      	logger.quiet "######## delete: dir ${it}" 
+         delete it
+     }   
+     copy {
+        from  "${myWildfly}/standalone/configuration/standalone_xml_history/standalone-ee8.initial.xml"
+        into "${myWildfly}/standalone/configuration/"
         rename { fileName ->
     				fileName == "standalone-ee8.initial.xml" ? "standalone-ee8.xml" : fileName;
   		}
