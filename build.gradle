@@ -2,9 +2,13 @@ if (!hasProperty('buildProfile')) ext.buildProfile =  'arquillian-container-cham
 logger.quiet "using buildProfile=${buildProfile}; to use a different profile , use this command line: \
  'gradle build -PbuildProfile=arquillian-container-chameleon-wf12-remote' oder 'arquillian-container-chameleon-payara5-managed'"
 logger.quiet "my Project dir is: ${projectDir}"
+if (!hasProperty('wildflyInstallDir')) ext.wildflyInstallDir =  System.env.HOME + '/swe_projects/wildfly-13.0.0.Beta1'
+logger.quiet "using Wildfly at : ${wildflyInstallDir}/"
+
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'war'
+//apply plugin: 'com.bmuschko.cargo'
 
 
 group = 'org.arquillian.example'
@@ -43,6 +47,30 @@ resolveWildfly.onlyIf {
   // of that file will constantly change. This why we need this "onlyIf" here.
   !file("${projectDir}/bin/wildfly-11.0.0.Final/README.txt").exists() 
 } 
+
+
+clean.doFirst {
+    
+	logger.quiet "#########cleanWar.doFirst"
+	delete "${buildDir}/"+war.archiveName
+    delete "${wildflyInstallDir}/standalone/deployments/${war.archiveName}"
+    logger.quiet "#########YOU NEED TO STOP THE SERVER FOR THIS!!#########"
+    logger.quiet "#########tidy up MyWildfly: delete from ${libsDir.getPath()} and ${wildflyInstallDir}/standalone/deployments/${war.archiveName}"
+    delete "${wildflyInstallDir}/standalone/data"
+    delete "${wildflyInstallDir}/standalone/tmp"
+    logger.quiet "#########tidy up  MyWildfly:${wildflyInstallDir}/standalone/data and  ${wildflyInstallDir}/standalone/tmp"
+   
+    copy {
+        from  "${wildflyInstallDir}/standalone/configuration/standalone_xml_history/standalone.initial.xml"
+        into  "${wildflyInstallDir}/standalone/configuration/"
+        rename { fileName ->
+    				fileName == "standalone.initial.xml" ? "standalone.xml" : fileName;
+  		}    
+  		 logger.quiet "#########tidy up MyWildfly: restore original standalone.xml"
+    }
+}
+
+
 
 dependencies {
      providedCompile group: 'javax', name: 'javaee-api', version: '8.0'
@@ -85,8 +113,7 @@ dependencies {
 			test.systemProperties = ['arquillian.launch': 'wildfly-managed' ] // needed by src/mein/resources/arquillian.xml
 			break;
 		case "arquillian-wildfly-remote": logger.info "dep wildfly-remote"; 
-		    //A remote container resides in a separate JVM from the test runner.
-		    wildfly "org.wildfly:wildfly-dist:11.0.0.Final@zip"
+		    
      		testCompile group: 'org.wildfly.arquillian', name: 'wildfly-arquillian-container-remote', version: '2.1.0.Final'
      		testCompile group: 'org.jboss.arquillian.junit', name: 'arquillian-junit-container' , version: '1.1.15.Final'
 			test.systemProperties = ['arquillian.launch': 'wildfly-remote' ] // needed by src/mein/resources/arquillian.xml
@@ -104,7 +131,7 @@ dependencies {
 			break;	
 		case "arquillian-container-chameleon-wf12-remote": logger.info "***************************dep arquillian-container-chameleon-wf12-remote"; 
 			//http://www.lordofthejars.com/2016/09/arquillian-chameleon-for-sake-of.html
-    		    testCompile group: 'org.arquillian.container', name: 'arquillian-container-chameleon', version: '1.0.0.CR1'
+    		testCompile group: 'org.arquillian.container', name: 'arquillian-container-chameleon', version: '1.0.0.CR1'
      		testCompile group: 'org.arquillian.container', name: 'arquillian-chameleon-junit-container-starter', version: '1.0.0.CR1'
     		testCompile group: 'org.jboss.logmanager', name: 'jboss-logmanager', version: '2.0.9.Final'
 			test.systemProperties = ['arquillian.launch': 'container-chameleon-wf12-remote',
@@ -145,7 +172,7 @@ dependencies {
      	
      		 
      }
-
+}
 war {
         webInf { 
              from ( 'src/main/resources' )  {
@@ -153,6 +180,11 @@ war {
         		} 
         	switch ( buildProfile ) {
         		case "arquillian-container-chameleon-wf12-remote":
+               rename { fileName ->
+    				fileName == "persistence-integration-wildfly12.xml" ? "persistence.xml" : fileName;
+  			   }
+  			   break;
+        	   case "arquillian-wildfly-remote":
                rename { fileName ->
     				fileName == "persistence-integration-wildfly12.xml" ? "persistence.xml" : fileName;
   			   }
@@ -167,38 +199,19 @@ war {
      		    throw new GradleException('!no valid profile specified');
   			}
          }
-       }
        
-}
-
-
-war.doLast {
-      copy {
-        println 'Copy from ${libsDir.getPath()} into /Users/bodo/wildfly-12.0.0.Final/standalone/deployments/'
-        from war.archivePath
-        into "/Users/bodo/wildfly-12.0.0.Final/standalone/deployments/"
-        include "*.war"
+       
+    doLast {
+    	copy {
+      	  println "Copy from ${libsDir.getPath()} into ${wildflyInstallDir}/standalone/deployments/"
+      	  from war.archivePath
+      	  into "${wildflyInstallDir}/standalone/deployments/"
+      	  include "*.war"
+    	}
     }
 }
 
 
-clean {
-    logger.quiet "#########delete from ${libsDir.getPath()} and /Users/bodo/wildfly-12.0.0.Final/standalone/deployments/${war.archiveName}"
-    outputs.upToDateWhen { false }
-    delete "${buildDir}/"+war.archiveName
-    delete "/Users/bodo/wildfly-12.0.0.Final/standalone/data"
-    delete "/Users/bodo/wildfly-12.0.0.Final/standalone/tmp"
-    delete "/Users/bodo/wildfly-12.0.0.Final/standalone/deployments/${war.archiveName}"
-    copy {
-        from  "/Users/bodo/wildfly-12.0.0.Final/standalone/configuration/standalone_xml_history/standalone-ee8.initial.xml"
-        into "/Users/bodo/wildfly-12.0.0.Final/standalone/configuration/"
-        rename { fileName ->
-    				fileName == "standalone-ee8.initial.xml" ? "standalone-ee8.xml" : fileName;
-  		}
-         
-    }
 
-  
-}
  	
   

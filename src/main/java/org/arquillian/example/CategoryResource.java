@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Logger;
 
 import javax.ejb.Stateless;
 import javax.json.Json;
@@ -22,6 +23,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+
+
 @Stateless
 @Path("/catres")
 public class CategoryResource {
@@ -30,7 +33,8 @@ public class CategoryResource {
 	@Context
     private UriInfo context;
 
-
+    
+    
 	@GET()
 	@Produces("application/json")
 	public Response findAll() {
@@ -45,6 +49,7 @@ public class CategoryResource {
 	public Response post(CategoryEntity categoryEntityFromPost) throws IOException {
 		//CategoryEntity categoryEntityFromPost = JsonbBuilder.create().fromJson(jsonPostString, CategoryEntity.class);
 		//categoryEntityFromPost.setId(null);//need to be null for persist();
+		Logger.getLogger(this.getClass().getName()).info("inside post !!!!!!!!!!!!");
 		em.persist(categoryEntityFromPost);
 		String actualJsonRespFile = "META-INF/status_ok.json";
 		InputStream inStream = this.getClass().getClassLoader().getResourceAsStream(actualJsonRespFile);
