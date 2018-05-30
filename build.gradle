@@ -9,8 +9,20 @@ logger.quiet "using Wildfly at : ${wildflyInstallDir}/"
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'war'
+apply plugin: 'eclipse-wtp'
 //apply plugin: 'com.bmuschko.cargo'
-
+eclipse {
+  wtp {
+    facet {
+      //you can add some extra wtp facets; mandatory keys: 'name', 'version':
+      facet name: 'java', version: '1.8'
+      facet name: 'jst.jaxrs', version: '2.1'
+      facet name: 'jst.ejb', version: '4.0'
+       facet name: 'jst.web', version: '4.0'
+       
+	}
+  }
+}
 
 group = 'org.arquillian.example'
 version = '1.0-SNAPSHOT'
