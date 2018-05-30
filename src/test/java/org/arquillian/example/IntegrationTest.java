@@ -98,8 +98,10 @@ public class IntegrationTest {
 		}
 		WebArchive war = ShrinkWrap.create(WebArchive.class).addPackages(true, "org.arquillian.example")
 				.addAsResource(persistenceXMLFile, "META-INF/persistence.xml")
+				.addAsResource(EmptyAsset.INSTANCE, "test.json")
 				.addAsResource("status_ok.json", "META-INF/status_ok.json")
-				.addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
+				.addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
+				.addAsWebInfResource("status_ok.json", "test.json");
 		war.getContent();
 		return war;
 
