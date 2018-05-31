@@ -59,7 +59,8 @@
     	 <container qualifier="container-chameleon-wf12-remote" default="true">
         <configuration> 
                     <property name="chameleonTarget">wildfly:12.0.0.Final:remote</property>
-                  
+                     <property name="username">admin</property>
+                     <property name="password">admin</property>            
     	</configuration>
    </container>
      

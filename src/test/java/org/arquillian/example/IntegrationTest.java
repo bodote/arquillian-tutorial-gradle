@@ -185,6 +185,7 @@ public class IntegrationTest {
 		String myUrlString = url.toString().concat("jaxrs-jsonb-test/direct");
 
 		Response responseFromPost = null;
+		//this works only with wildfly13!
 		responseFromPost = callJaxRSJsonBPost(myUrlString);
 		assertThat(responseFromPost.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
 
