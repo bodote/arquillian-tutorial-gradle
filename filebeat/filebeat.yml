@@ -1,0 +1,17 @@
+output:
+  logstash:
+    enabled: true
+    hosts:
+      - 192.168.178.24:5044
+    ssl:
+      certificate_authorities:
+        - /etc/pki/tls/certs/logstash-beats.crt
+      verification_mode: none
+#    timeout: 15
+
+filebeat.prospectors:
+- type: log
+  enabled: true
+  paths:
+     - /usr/share/filebeat/server.log
+     
