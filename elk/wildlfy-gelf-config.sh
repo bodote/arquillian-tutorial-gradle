@@ -1,0 +1,1 @@
+./jboss-cli.sh --connect --file=gelfadd.command
