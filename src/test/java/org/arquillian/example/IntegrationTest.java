@@ -9,11 +9,22 @@ import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.Reader;
+
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.json.Json;
 
@@ -23,10 +34,15 @@ import javax.json.JsonStructure;
 
 import javax.json.bind.JsonbBuilder;
 import javax.json.stream.JsonParsingException;
+import javax.ws.rs.RuntimeType;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.client.InvocationCallback;
+import javax.ws.rs.core.Configuration;
+import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.MediaType;
 
 import javax.ws.rs.core.Response;
@@ -47,7 +63,7 @@ public class IntegrationTest {
 
 	@ArquillianResource
 	private URL url;
-
+	Logger logger = Logger.getLogger(this.getClass().getName());
 	// private ResourceClient resourceClient;
 
 	// private static final String PATH_RESOURCE =
@@ -98,8 +114,10 @@ public class IntegrationTest {
 		}
 		WebArchive war = ShrinkWrap.create(WebArchive.class).addPackages(true, "org.arquillian.example")
 				.addAsResource(persistenceXMLFile, "META-INF/persistence.xml")
+				.addAsResource(EmptyAsset.INSTANCE, "test.json")
 				.addAsResource("status_ok.json", "META-INF/status_ok.json")
-				.addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
+				.addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
+				.addAsWebInfResource("status_ok.json", "test.json");
 		war.getContent();
 		return war;
 
@@ -107,9 +125,8 @@ public class IntegrationTest {
 
 	@Before
 	public void initTestCase() {
-		// this.resourceClient = new ResourceClient(url) ;
-		System.out.println("init");
-		// resourceClient.resourcePath("/DB").delete();
+		logger.setLevel(Level.INFO);
+		logger.fine("init testcase");
 	}
 
 	@Test
@@ -176,16 +193,111 @@ public class IntegrationTest {
 		assertThat(responseFromPost.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
 
 	}
-	
+
 	@Test
 	@RunAsClient
 	public void checkJaxRSJsonBDirect() throws MalformedURLException, URISyntaxException, FileNotFoundException {
 		String myUrlString = url.toString().concat("jaxrs-jsonb-test/direct");
 
 		Response responseFromPost = null;
+		// this works only with wildfly13!
 		responseFromPost = callJaxRSJsonBPost(myUrlString);
 		assertThat(responseFromPost.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
 
+	}
+
+	@Test
+	@RunAsClient
+	public void asynchGetCallOk() throws MalformedURLException, URISyntaxException, FileNotFoundException {
+		String myUrlString = url.toString().concat("myasynchrest/ok");
+		// first call
+
+		Response response = getResponse(new URL(myUrlString));
+
+		// 2nd Call:
+		long timestampStart = System.currentTimeMillis();
+		logger.fine("start 2nd client at: " + timestampStart);
+		response = getResponse(new URL(myUrlString));
+		long timestampEnd = System.currentTimeMillis();
+		logger.info("2nd waittime  client was: " + (timestampEnd - timestampStart));
+
+		JsonStructure json = getJsonViaStringReader(response);
+		assertThat(response.getStatusInfo().toEnum(), is(equalTo(Response.Status.OK)));
+		assertNotNull(json);
+	}
+
+	@Test
+	@RunAsClient
+	public void asynchGetCallOkAsyncClient()
+			throws MalformedURLException, URISyntaxException, FileNotFoundException, InterruptedException {
+		String myUrlString = url.toString().concat("myasynchrest/ok");
+
+		final long timestampStart = System.currentTimeMillis();
+		final ArrayList<Future<String>> ffList = new ArrayList<Future<String>>();
+		logger.info(
+				"about to start makting  the calls.in 15sec......:" + (System.currentTimeMillis() - timestampStart));
+		Thread.sleep(0);
+		if (false) {
+			IntStream.range(0, 330).forEach(i -> {
+				logger.fine("Loop:" + i);
+				ffList.add(asychClientSingleGetCall(myUrlString));
+				System.err.print("." + (System.currentTimeMillis() - timestampStart));
+			});
+		} else {
+			for (int i=0;i<330;i++) {
+				logger.fine("Loop:" + i);
+				ffList.add(asychClientSingleGetCall(myUrlString));
+				System.err.print("." + (System.currentTimeMillis() - timestampStart));
+			}
+		}
+		System.err.println("!");
+		final ArrayList<String> resultList = new ArrayList<String>();
+		logger.info("just made the calls.......:" + (System.currentTimeMillis() - timestampStart));
+		Thread.sleep(0);
+		do {
+			ffList.forEach(ff -> {
+				logger.fine(" wait ");
+				try {
+
+					if (ff.isDone()) {
+						logger.fine("3nd Loop before get:" + (System.currentTimeMillis() - timestampStart));
+						String content = ff.get();
+						resultList.add(content);
+						logger.fine("3nd Loop with get: " + content);
+						logger.fine("3nd Loop after get:" + (System.currentTimeMillis() - timestampStart));
+					}
+				} catch (Exception e) {
+					logger.severe("exception in 3rd Loop :" + e.getMessage());
+				}
+			});
+			Thread.sleep(5000);
+			logger.info("++++++++outer loop: " + (System.currentTimeMillis() - timestampStart));
+		} while (resultList.size() < ffList.size());
+
+		logger.info(
+				"the Dots:" + resultList.stream().map(i -> ((i != null ) && i.contains("ok")) ? "." : "X").collect(Collectors.joining()));
+
+		logger.info("THE END:" + (System.currentTimeMillis() - timestampStart));
+	}
+
+	private Future<String> asychClientSingleGetCall(String myUrlString) {
+		final AtomicLong timestampStartInThread = new AtomicLong(System.currentTimeMillis());
+		Client client = ClientBuilder.newClient( );
+		WebTarget target = client.target(myUrlString);
+		Future<String> ff = target.request().async().get(new InvocationCallback<String>() {
+			@Override
+			public void failed(Throwable thr) {
+				long timestampEnd = System.currentTimeMillis();
+				logger.severe("error  after: " + (timestampEnd - timestampStartInThread.get()));
+				fail("asynch failed with : " + thr.getMessage());
+			}
+			@Override
+			public void completed(String arg0) {
+				long timestampEnd = System.currentTimeMillis();
+				logger.fine("completed after: " + (timestampEnd - timestampStartInThread.get()));
+			}
+		});
+		return ff;
 	}
 
 	private Response callJaxRSJsonBPost(String myUrlString)

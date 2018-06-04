@@ -1,0 +1,19 @@
+version: '3.3'
+services:
+  webapp:
+    build: 
+      context: .
+    container_name: wildfly12ee8debug
+    image: wildfly12ee8debug
+    ports:
+     - "8080:8080"
+     - "8787:8787"
+     - "9990:9990"
+       
+#  environment:
+#   - MYSQL_HOST=mysql_server
+#   - MONGO_HOST=mongo_server
+#   - ELASTIC_HOST=elasticsearch_server
+    volumes:
+     - "/Users/bodo/swe_projects/eclipse-webtools-test/arquillian-tutorial-gradle/build/libs:/opt/jboss/wildfly/standalone/deployments/"
+ 
