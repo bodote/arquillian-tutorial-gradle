@@ -238,13 +238,13 @@ public class IntegrationTest {
 				"about to start makting  the calls.in 15sec......:" + (System.currentTimeMillis() - timestampStart));
 		Thread.sleep(0);
 		if (false) {
-			IntStream.range(0, 330).forEach(i -> {
+			IntStream.range(0, 3).forEach(i -> {
 				logger.fine("Loop:" + i);
 				ffList.add(asychClientSingleGetCall(myUrlString));
 				System.err.print("." + (System.currentTimeMillis() - timestampStart));
 			});
 		} else {
-			for (int i=0;i<330;i++) {
+			for (int i=0;i<3;i++) {
 				logger.fine("Loop:" + i);
 				ffList.add(asychClientSingleGetCall(myUrlString));
 				System.err.print("." + (System.currentTimeMillis() - timestampStart));

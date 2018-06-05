@@ -30,12 +30,12 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
 @Stateless
-@Startup
+
 @Path("/jaxrs-jsonb-test")
 public class JaxRSJsonBResource {
 	Logger logger = Logger.getLogger(this.toString());
-	@Inject
-	JaxRSActivator applicationConifg;
+	//@Inject
+	//JaxRSActivator applicationConifg;
 	@POST
 	@Path("/indirect")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -48,7 +48,7 @@ public class JaxRSJsonBResource {
 
 			// JaxRSJsonBEntity jaxRSJsonBEntity;
 			Logger.getLogger(this.getClass().getName())
-					.info("1" + jaxRSJsonBEntity.targetValue + "  2:" + jaxRSJsonBEntity.bValue2+" " +applicationConifg.aString.toString());
+					.info("1" + jaxRSJsonBEntity.targetValue + "  2:" + jaxRSJsonBEntity.bValue2+" " );//+applicationConifg.aString.toString());
 			String actualJsonRespFile = "META-INF/status_ok.json";
 			InputStream inStream = this.getClass().getClassLoader().getResourceAsStream(actualJsonRespFile);
 			JsonObject jsonResponseOk = Json.createReader(inStream).readObject();
@@ -67,7 +67,7 @@ public class JaxRSJsonBResource {
 	//this works only with wildfly13!
 	public Response postDirect(JaxRSJsonBEntity jaxRSJsonBEntity) throws IOException {
 		Logger.getLogger(this.getClass().getName())
-				.info("1" + jaxRSJsonBEntity.targetValue + "2:" + jaxRSJsonBEntity.bValue2 + applicationConifg.aString);
+				.info("1" + jaxRSJsonBEntity.targetValue + "2:" + jaxRSJsonBEntity.bValue2 );//+ applicationConifg.aString);
 		String actualJsonRespFile = "META-INF/status_ok.json";
 		InputStream inStream = this.getClass().getClassLoader().getResourceAsStream(actualJsonRespFile);
 		JsonObject jsonResponseOk = Json.createReader(inStream).readObject();
