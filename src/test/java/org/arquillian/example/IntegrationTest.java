@@ -244,8 +244,9 @@ public class IntegrationTest {
 				System.err.print("." + (System.currentTimeMillis() - timestampStart));
 			});
 		} else {
-			for (int i=0;i<3;i++) {
+			for (int i=0;i<100;i++) {
 				logger.fine("Loop:" + i);
+				Thread.sleep(50 + (int)(Math.random() * 150));
 				ffList.add(asychClientSingleGetCall(myUrlString));
 				System.err.print("." + (System.currentTimeMillis() - timestampStart));
 			}

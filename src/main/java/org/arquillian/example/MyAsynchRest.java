@@ -3,6 +3,7 @@ package org.arquillian.example;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
@@ -35,10 +36,14 @@ public class MyAsynchRest {
 	@Path("/ok")
 	@Asynchronous
 	public void asyncGet(@Suspended AsyncResponse ar) {
-		logger.info("start server processing");
+		logger.info("start asyncGet");
 		try {
-			Thread.sleep(1000);
-
+			
+			org.jboss.logging.NDC.push("mdc.NestedA");
+			Thread.sleep(50l + Math.round(150 * new Random().nextFloat()));
+			logger.info("+++++ asyncGet check Duration: NestedA");
+			org.jboss.logging.NDC.pop();
+			
 			ar.resume((JsonObject) Json.createReader(new StringReader("{\"status\":\"ok\"}")).read());
 			
 		} catch (Exception e) {
