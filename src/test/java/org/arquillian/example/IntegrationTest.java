@@ -5,15 +5,26 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -26,6 +37,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.imageio.ImageIO;
 import javax.json.Json;
 
 import javax.json.JsonObject;
@@ -46,11 +58,13 @@ import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.MediaType;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -244,9 +258,9 @@ public class IntegrationTest {
 				System.err.print("." + (System.currentTimeMillis() - timestampStart));
 			});
 		} else {
-			for (int i=0;i<100;i++) {
+			for (int i = 0; i < 3; i++) {
 				logger.fine("Loop:" + i);
-				Thread.sleep(50 + (int)(Math.random() * 150));
+				Thread.sleep(50 + (int) (Math.random() * 150));
 				ffList.add(asychClientSingleGetCall(myUrlString));
 				System.err.print("." + (System.currentTimeMillis() - timestampStart));
 			}
@@ -275,15 +289,80 @@ public class IntegrationTest {
 			logger.info("++++++++outer loop: " + (System.currentTimeMillis() - timestampStart));
 		} while (resultList.size() < ffList.size());
 
-		logger.info(
-				"the Dots:" + resultList.stream().map(i -> ((i != null ) && i.contains("ok")) ? "." : "X").collect(Collectors.joining()));
+		logger.info("the Dots:" + resultList.stream().map(i -> ((i != null) && i.contains("ok")) ? "." : "X")
+				.collect(Collectors.joining()));
 
 		logger.info("THE END:" + (System.currentTimeMillis() - timestampStart));
 	}
 
+	@Test
+	@RunAsClient
+	public void uploadDownloadImage() {
+		try {
+			URL inputUrl = new URL("https://docs.oracle.com/javase/tutorial/2d/images/examples/strawberry.jpg");
+			BufferedImage img = ImageIO.read(inputUrl);
+			assertNotNull(img);
+			assertTrue(img.getHeight() > 0);
+
+			Long id = callImagePost(url.toString().concat("image/5"), img);
+			assertTrue(id > 0);
+
+			callImageGet(url.toString().concat("image/" + id));
+		} catch (IOException | URISyntaxException e) {
+			e.printStackTrace();
+			fail("imageio:");
+		}
+	}
+
+	private void callImageGet(String myUrlString) throws URISyntaxException, MalformedURLException, IOException {
+
+		final Client client = ClientBuilder.newClient();
+		// invoke service after setting necessary parameters
+		WebTarget webTarget = client.target(myUrlString);
+		client.property("accept", "application/image");
+		Builder builder = webTarget.request();
+		Response response = builder.get();
+
+		// get response code
+		int responseCode = response.getStatus();
+		System.out.println("Response code: " + responseCode);
+
+		if (response.getStatus() != 200) {
+			throw new RuntimeException("Failed with HTTP error code : " + responseCode);
+		}
+
+		// get response message
+		String responseMessageFromServer = response.getStatusInfo().getReasonPhrase();
+		System.out.println("ResponseMessageFromServer: " + responseMessageFromServer);
+		String contDisp = response.getHeaderString("Content-Disposition");
+		String pattern = ".*(filename=\")(.*)\".*";
+		String filename = contDisp.replaceAll(pattern, "$2");
+		assertEquals("Image1.jpg", filename);
+		// read response string
+		InputStream inputStream = response.readEntity(InputStream.class);
+		byte[] buffer = new byte[1024];
+		int bytesRead;
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		while ((bytesRead = inputStream.read(buffer)) != -1) {
+			outputStream.write(buffer, 0, bytesRead);
+		}
+
+		outputStream.flush();
+		byte[] byteArray = outputStream.toByteArray();
+		Files.delete((new File("/Users/bodo/"+filename)).toPath()) ;
+		    
+		try (FileOutputStream fos = new FileOutputStream("/Users/bodo/"+filename)) {
+			fos.write(byteArray);
+			// fos.close(); There is no more need for this line since you had created the
+			// instance of "fos" inside the try. And this will automatically close the
+			// OutputStream
+		}
+		assertTrue(byteArray.length > 1);
+	}
+
 	private Future<String> asychClientSingleGetCall(String myUrlString) {
 		final AtomicLong timestampStartInThread = new AtomicLong(System.currentTimeMillis());
-		Client client = ClientBuilder.newClient( );
+		Client client = ClientBuilder.newClient();
 		WebTarget target = client.target(myUrlString);
 		Future<String> ff = target.request().async().get(new InvocationCallback<String>() {
 			@Override
@@ -292,6 +371,7 @@ public class IntegrationTest {
 				logger.severe("error  after: " + (timestampEnd - timestampStartInThread.get()));
 				fail("asynch failed with : " + thr.getMessage());
 			}
+
 			@Override
 			public void completed(String arg0) {
 				long timestampEnd = System.currentTimeMillis();
@@ -324,6 +404,43 @@ public class IntegrationTest {
 			assertNotNull(actualJsonResp);
 		}
 		return responseFromPost;
+	}
+
+	private long callImagePost(String myUrlString, BufferedImage img)
+			throws URISyntaxException, MalformedURLException, FileNotFoundException {
+
+		{
+
+			try {
+				final Client resourceClient = ClientBuilder.newClient();
+				Builder builder = resourceClient.target(new URL(myUrlString).toURI())
+						.request(MediaType.APPLICATION_JSON);
+				ByteArrayOutputStream bo = new ByteArrayOutputStream();
+				BufferedOutputStream os = new BufferedOutputStream(bo);
+				ImageIO.write(img, "jpg", os);
+				os.close();
+				bo.close();
+				byte[] ba = bo.toByteArray();
+				BufferedInputStream ins = new BufferedInputStream(new ByteArrayInputStream(ba));
+				// responseInStream = builder.post(Entity.entity(ins,
+				// MediaType.APPLICATION_OCTET_STREAM),InputStream.class);
+				Response response = builder.post(Entity.entity(ins, MediaType.APPLICATION_OCTET_STREAM));
+				assertEquals(Response.Status.OK, response.getStatusInfo());
+
+				JsonObject id = (JsonObject) getJsonViaStringReader(response);
+				return id.getInt("id");
+				// BufferedImage imgOut = ImageIO.read(instream);
+				// assertEquals(Status.OK,responseFromPost.getStatus());
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				fail(e.getMessage());
+
+			}
+			return 0;
+
+		}
+
 	}
 
 	private JsonStructure getJsonViaStringReader(Response response) {

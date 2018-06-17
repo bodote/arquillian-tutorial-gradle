@@ -1,10 +1,12 @@
 package org.arquillian.example;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -12,6 +14,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.ejb.Startup;
 import javax.ejb.Stateless;
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
@@ -45,7 +48,6 @@ public class JaxRSJsonBResource {
 		
 		try {
 			JaxRSJsonBEntity jaxRSJsonBEntity = JsonbBuilder.create().fromJson(jsonString, JaxRSJsonBEntity.class);
-
 			// JaxRSJsonBEntity jaxRSJsonBEntity;
 			Logger.getLogger(this.getClass().getName())
 					.info("1" + jaxRSJsonBEntity.targetValue + "  2:" + jaxRSJsonBEntity.bValue2+" " );//+applicationConifg.aString.toString());
