@@ -40,36 +40,16 @@ public class ImageResource {
 	@POST
 	@Path("{Name}")
 	public Response takeImageAndDownscale(@PathParam("Name") String name, byte[] payLoad) throws IOException {
-		ByteArrayInputStream bi = new ByteArrayInputStream(payLoad);
-		BufferedImage before = ImageIO.read(bi);
-		if (before == null)
-			throw new NullPointerException();
-		int w = before.getWidth();
-		int h = before.getHeight();
-		BufferedImage after = new BufferedImage(w/2, h/2, before.getType());
-		AffineTransform at = new AffineTransform();
-		at.scale(0.5, 0.5);
-		AffineTransformOp scaleOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-		after = scaleOp.filter(before, after);
-		if ( after != null && after.getHeight() > 2) {
-			ByteArrayOutputStream byteArrayOutStreamAfterFilter = new ByteArrayOutputStream();
-			BufferedOutputStream outStreamAfterFilter = new BufferedOutputStream(byteArrayOutStreamAfterFilter);
-			ImageIO.write(after, "jpg", outStreamAfterFilter);
-			outStreamAfterFilter.close();
-			outStreamAfterFilter.close();
-			byte[] byteArrayAfter = byteArrayOutStreamAfterFilter.toByteArray();
-			ImageEntity img = new ImageEntity(byteArrayAfter, name);
 
+		try {
+			ImageEntity img = new ImageEntity(payLoad, name);
 			em.persist(img);
-
 			JsonObject jsonResponseId = Json.createObjectBuilder().add("id", img.getId()).build();
-
 			Response resp = Response.status(Response.Status.OK).entity(jsonResponseId).build();
-
 			return resp;
-		} else
+		} catch (Exception e) {
 			return Response.status(Response.Status.BAD_REQUEST).build();
-
+		}
 	}
 
 	@GET
