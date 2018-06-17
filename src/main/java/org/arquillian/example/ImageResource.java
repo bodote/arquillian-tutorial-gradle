@@ -38,36 +38,32 @@ public class ImageResource {
 	EntityManager em;
 
 	@POST
-	@Path("{ID}")
-	public Response postDirect(@PathParam("ID") String id, byte[] payLoad) throws IOException {
+	@Path("{Name}")
+	public Response takeImageAndDownscale(@PathParam("Name") String name, byte[] payLoad) throws IOException {
 		ByteArrayInputStream bi = new ByteArrayInputStream(payLoad);
 		BufferedImage before = ImageIO.read(bi);
 		if (before == null)
 			throw new NullPointerException();
 		int w = before.getWidth();
 		int h = before.getHeight();
-		BufferedImage after = new BufferedImage(w * 2, h * 2, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage after = new BufferedImage(w/2, h/2, before.getType());
 		AffineTransform at = new AffineTransform();
-		at.scale(2.0, 2.0);
+		at.scale(0.5, 0.5);
 		AffineTransformOp scaleOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
 		after = scaleOp.filter(before, after);
-		if (before.getHeight() != after.getHeight() && after != null && after.getHeight() > 2) {
-			ByteArrayOutputStream bo = new ByteArrayOutputStream();
-			BufferedOutputStream os = new BufferedOutputStream(bo);
-			ImageIO.write(after, "jpg", os);
-			os.close();
-			bo.close();
-			byte[] ba = bo.toByteArray();
-			ImageEntity img = new ImageEntity();
-			img.setBlob(ba);
+		if ( after != null && after.getHeight() > 2) {
+			ByteArrayOutputStream byteArrayOutStreamAfterFilter = new ByteArrayOutputStream();
+			BufferedOutputStream outStreamAfterFilter = new BufferedOutputStream(byteArrayOutStreamAfterFilter);
+			ImageIO.write(after, "jpg", outStreamAfterFilter);
+			outStreamAfterFilter.close();
+			outStreamAfterFilter.close();
+			byte[] byteArrayAfter = byteArrayOutStreamAfterFilter.toByteArray();
+			ImageEntity img = new ImageEntity(byteArrayAfter, name);
+
 			em.persist(img);
 
-			BufferedInputStream ins = new BufferedInputStream(new ByteArrayInputStream(ba));
 			JsonObject jsonResponseId = Json.createObjectBuilder().add("id", img.getId()).build();
-			// Response resp = Response.status(Response.Status.OK).entity(Entity.entity(ins,
-			// MediaType.APPLICATION_OCTET_STREAM)).build();
-			// Response resp = Response.status(Response.Status.OK).entity(Entity.entity(ba,
-			// "application/image")).build();
+
 			Response resp = Response.status(Response.Status.OK).entity(jsonResponseId).build();
 
 			return resp;
@@ -84,9 +80,9 @@ public class ImageResource {
 		ImageEntity img = em.find(ImageEntity.class, id);
 
 		BufferedInputStream ins = new BufferedInputStream(new ByteArrayInputStream(img.getBlob()));
-		
+
 		ResponseBuilder responseBuilder = Response.ok((Object) img.getBlob());
-		responseBuilder.header("Content-Disposition", "attachment; filename=\"Image"+img.getId()+".jpg\"");
+		responseBuilder.header("Content-Disposition", "attachment; filename=\"" + img.getName() + ".jpg\"");
 		return responseBuilder.build();
 
 	}

@@ -24,4 +24,20 @@ public class ImageEntity {
 	public void setBlob(byte[] blob) {
 		this.blob = blob;
 	}
+	private String name;
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public ImageEntity(byte[] blob, String name) {
+		super();
+		this.blob = blob;
+		this.name = name;
+	}
+	public ImageEntity() {
+	
+	}
+	
 }

@@ -304,7 +304,7 @@ public class IntegrationTest {
 			assertNotNull(img);
 			assertTrue(img.getHeight() > 0);
 
-			Long id = callImagePost(url.toString().concat("image/5"), img);
+			Long id = callImagePost(url.toString().concat("image/strawberry"), img);
 			assertTrue(id > 0);
 
 			callImageGet(url.toString().concat("image/" + id));
@@ -337,7 +337,7 @@ public class IntegrationTest {
 		String contDisp = response.getHeaderString("Content-Disposition");
 		String pattern = ".*(filename=\")(.*)\".*";
 		String filename = contDisp.replaceAll(pattern, "$2");
-		assertEquals("Image1.jpg", filename);
+
 		// read response string
 		InputStream inputStream = response.readEntity(InputStream.class);
 		byte[] buffer = new byte[1024];
@@ -349,9 +349,15 @@ public class IntegrationTest {
 
 		outputStream.flush();
 		byte[] byteArray = outputStream.toByteArray();
-		Files.delete((new File("/Users/bodo/"+filename)).toPath()) ;
-		    
-		try (FileOutputStream fos = new FileOutputStream("/Users/bodo/"+filename)) {
+		assertTrue(byteArray.length > 100);
+		try {
+			Files.delete((new File("/Users/bodo/" + filename)).toPath());
+		} catch (Exception e) {
+			// ignore
+
+		}
+
+		try (FileOutputStream fos = new FileOutputStream("/Users/bodo/" + filename)) {
 			fos.write(byteArray);
 			// fos.close(); There is no more need for this line since you had created the
 			// instance of "fos" inside the try. And this will automatically close the

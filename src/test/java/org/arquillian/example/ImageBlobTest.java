@@ -65,7 +65,7 @@ public class ImageBlobTest {
 			EntityTransaction transact = em.getTransaction();
 			transact.begin();
 			URL inputUrl = new URL(urlString);
-			ImageEntity imgEnt = new ImageEntity();
+			
 
 			BufferedImage img = ImageIO.read(inputUrl);
 			ByteArrayOutputStream bo = new ByteArrayOutputStream();
@@ -75,7 +75,8 @@ public class ImageBlobTest {
 			bo.close();
 			byte[] ba = bo.toByteArray();
 
-			imgEnt.setBlob(ba);
+			
+			ImageEntity imgEnt = new ImageEntity(ba,"test");
 
 			em.persist(imgEnt);
 			id = imgEnt.getId();
