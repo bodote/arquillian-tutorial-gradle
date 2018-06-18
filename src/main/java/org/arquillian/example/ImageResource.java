@@ -54,15 +54,25 @@ public class ImageResource {
 
 	@GET
 	@Produces("application/image")
-	@Path("{ID}")
+	@Path("{ID}/full")
 	public Response getImageById(@PathParam("ID") Long id) throws IOException {
 
 		ImageEntity img = em.find(ImageEntity.class, id);
 
-		BufferedInputStream ins = new BufferedInputStream(new ByteArrayInputStream(img.getBlob()));
-
 		ResponseBuilder responseBuilder = Response.ok((Object) img.getBlob());
 		responseBuilder.header("Content-Disposition", "attachment; filename=\"" + img.getName() + ".jpg\"");
+		return responseBuilder.build();
+
+	}
+	@GET
+	@Produces("application/image")
+	@Path("{ID}/small")
+	public Response getSmallImageById(@PathParam("ID") Long id) throws IOException {
+
+		ImageEntity img = em.find(ImageEntity.class, id);
+
+		ResponseBuilder responseBuilder = Response.ok((Object) img.getDownscaledBlob());
+		responseBuilder.header("Content-Disposition", "attachment; filename=\"" + img.getName() + "_small.jpg\"");
 		return responseBuilder.build();
 
 	}

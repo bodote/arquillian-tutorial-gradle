@@ -307,7 +307,8 @@ public class IntegrationTest {
 			Long id = callImagePost(url.toString().concat("image/strawberry"), img);
 			assertTrue(id > 0);
 
-			callImageGet(url.toString().concat("image/" + id));
+			callImageGet(url.toString().concat("image/" + id+"/full"));
+			callImageGet(url.toString().concat("image/" + id+"/small"));
 		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 			fail("imageio:");
