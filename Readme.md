@@ -44,4 +44,33 @@ if your application server has a different default jta-data-source , you need to
 ## eclipse integration:
 first you need to execute the gradle task "build"  this will automatically download the required depencendies, also the payra5 . after this run you can also call eclipses "run/debug junit-test" from the menu.
  	
+# ELK Stack integration:
+Wildfly needs to be configurated according to http://logging.paluch.biz/examples/wildfly.html , in standalone-ee8.xml, logging subsystem : 
 
+            <custom-handler name="GelfLogger" class="biz.paluch.logging.gelf.wildfly.WildFlyGelfLogHandler" module="biz.paluch.logging">
+                <properties>
+                    <property name="host" value="tcp:localhost"/>
+                    <property name="port" value="5046"/>
+                    <property name="version" value="1.0"/>
+                    <property name="facility" value="wildfly13beta1"/>
+                    <property name="extractStackTrace" value="true"/>
+                    <property name="filterStackTrace" value="true"/>
+                    <property name="includeLogMessageParameters" value="true"/>
+                    <property name="mdcProfiling" value="true"/>
+                    <property name="timestampPattern" value="yyyy-MM-dd HH:mm:ss,SSSS"/>
+                    <property name="maximumMessageSize" value="8192"/>
+                    <property name="additionalFields" value="fieldNamebodo=fieldValuemybodo,fieldName2=fieldValue2"/>
+                    <property name="additionalFieldTypes" value="fieldNamebodo=String,mdc.RequestDuration=Long,fieldName3=Long"/>
+                    <property name="mdcFields" value="mdc.BODO,mdc.BODO2"/>
+                    <property name="dynamicMdcFields" value="mdc.*,(mdc|MDC)fields"/>
+                    <property name="includeFullMdc" value="true"/>
+                </properties>
+                .....
+                <root-logger>
+                <level name="INFO"/>
+                <handlers>
+                    <handler name="FILE"/>
+                    <handler name="CONSOLE"/>
+                    <handler name="GelfLogger"/>
+                </handlers>
+            </root-logger>
