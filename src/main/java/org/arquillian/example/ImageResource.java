@@ -9,10 +9,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import javax.ejb.Stateless;
 import javax.enterprise.context.RequestScoped;
 import javax.imageio.ImageIO;
+import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.persistence.EntityManager;
@@ -28,6 +30,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.arquillian.example.configuration.PropertiesFromFile;
+
 @Stateless
 
 @Path("image")
@@ -37,12 +41,22 @@ public class ImageResource {
 	@PersistenceContext
 	EntityManager em;
 
+	@Inject
+	@PropertiesFromFile("my.properties")
+	Properties customProperties;
+
 	@POST
 	@Path("{Name}")
 	public Response takeImageAndDownscale(@PathParam("Name") String name, byte[] payLoad) throws IOException {
-
+		
 		try {
-			ImageEntity img = new ImageEntity(payLoad, name);
+			Integer downscaleFactor =2;
+			try {
+			    downscaleFactor = Integer.parseInt((String) customProperties.get("downscaleFactor"));
+			} catch (Exception e) {
+				e.printStackTrace(System.err);
+			}
+			ImageEntity img = new ImageEntity(payLoad, name,downscaleFactor);
 			em.persist(img);
 			JsonObject jsonResponseId = Json.createObjectBuilder().add("id", img.getId()).build();
 			Response resp = Response.status(Response.Status.OK).entity(jsonResponseId).build();
@@ -64,6 +78,7 @@ public class ImageResource {
 		return responseBuilder.build();
 
 	}
+
 	@GET
 	@Produces("application/image")
 	@Path("{ID}/small")

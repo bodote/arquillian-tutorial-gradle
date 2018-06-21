@@ -93,7 +93,7 @@ public class ImageBlobTest {
 			byte[] ba = bo.toByteArray();
 
 			
-			ImageEntity imgEnt = new ImageEntity(ba,"test");
+			ImageEntity imgEnt = new ImageEntity(ba,"test",2);
 
 			em.persist(imgEnt);
 			id = imgEnt.getId();
