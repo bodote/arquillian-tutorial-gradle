@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -26,10 +25,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
@@ -39,32 +34,24 @@ import java.util.stream.IntStream;
 
 import javax.imageio.ImageIO;
 import javax.json.Json;
-
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonStructure;
-
 import javax.json.bind.JsonbBuilder;
 import javax.json.stream.JsonParsingException;
-import javax.ws.rs.RuntimeType;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.InvocationCallback;
-import javax.ws.rs.core.Configuration;
-import javax.ws.rs.core.Feature;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
-import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -353,13 +340,13 @@ public class IntegrationTest {
 		byte[] byteArray = outputStream.toByteArray();
 		assertTrue(byteArray.length > 100);
 		try {
-			Files.delete((new File("/Users/bodo/" + filename)).toPath());
+			Files.delete((new File("/Users/bodo.teichmann/" + filename)).toPath());
 		} catch (Exception e) {
 			// ignore
 
 		}
 
-		try (FileOutputStream fos = new FileOutputStream("/Users/bodo/" + filename)) {
+		try (FileOutputStream fos = new FileOutputStream("/Users/bodo.teichmann/" + filename)) {
 			fos.write(byteArray);
 			// fos.close(); There is no more need for this line since you had created the
 			// instance of "fos" inside the try. And this will automatically close the

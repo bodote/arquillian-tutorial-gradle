@@ -7,16 +7,12 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Properties;
 
 import javax.imageio.ImageIO;
-import javax.inject.Inject;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-
-import org.arquillian.example.configuration.PropertiesFromFile;
 
 @Entity
 public class ImageEntity {
@@ -54,9 +50,9 @@ public class ImageEntity {
 	
 
 	private String name;
-	private int downscaleFactor;
+	private float downscaleFactor;
 
-	public int getDownscaleFactor() {
+	public float getDownscaleFactor() {
 		return downscaleFactor;
 	}
 
@@ -72,7 +68,7 @@ public class ImageEntity {
 		this.name = name;
 	}
 
-	public ImageEntity(byte[] blob, String name,int downscaleFactor) throws IOException {
+	public ImageEntity(byte[] blob, String name,float downscaleFactor) throws IOException {
 		super();
 		this.blob = blob;
 		this.downscaleFactor=downscaleFactor;
@@ -90,9 +86,9 @@ public class ImageEntity {
 		BufferedImage before = ImageIO.read(bi);
 		int w = before.getWidth();
 		int h = before.getHeight();
-		BufferedImage after = new BufferedImage(w / this.downscaleFactor, h / this.downscaleFactor, before.getType());
+		BufferedImage after = new BufferedImage(Math.round(w * this.downscaleFactor), Math.round(h * this.downscaleFactor), before.getType()  ) ;
 		AffineTransform at = new AffineTransform();
-		at.scale(0.5, 0.5);
+		at.scale(this.downscaleFactor, this.downscaleFactor);
 		AffineTransformOp scaleOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
 		after = scaleOp.filter(before, after);
 		byte[] byteArrayAfter;
