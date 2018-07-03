@@ -56,7 +56,7 @@ public class ImageResource {
 			} catch (Exception e) {
 				e.printStackTrace(System.err);
 			}
-			ImageEntity img = new ImageEntity(payLoad, name,downscaleFactor);
+			ImageEntity img = new ImageEntity(payLoad, name,(1.0f/downscaleFactor));
 			em.persist(img);
 			JsonObject jsonResponseId = Json.createObjectBuilder().add("id", img.getId()).build();
 			Response resp = Response.status(Response.Status.OK).entity(jsonResponseId).build();

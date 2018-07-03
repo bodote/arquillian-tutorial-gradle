@@ -340,13 +340,13 @@ public class IntegrationTest {
 		byte[] byteArray = outputStream.toByteArray();
 		assertTrue(byteArray.length > 100);
 		try {
-			Files.delete((new File("/Users/bodo.teichmann/" + filename)).toPath());
+			Files.delete((new File("/Users/bodo/" + filename)).toPath());
 		} catch (Exception e) {
 			// ignore
 
 		}
 
-		try (FileOutputStream fos = new FileOutputStream("/Users/bodo.teichmann/" + filename)) {
+		try (FileOutputStream fos = new FileOutputStream("/Users/bodo/" + filename)) {
 			fos.write(byteArray);
 			// fos.close(); There is no more need for this line since you had created the
 			// instance of "fos" inside the try. And this will automatically close the
