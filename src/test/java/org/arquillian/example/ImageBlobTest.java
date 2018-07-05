@@ -1,7 +1,9 @@
 package org.arquillian.example;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
@@ -33,8 +35,9 @@ public class ImageBlobTest {
 	@Test
 	public void imageSaveGetById() {
 
-		String urlString = "https://docs.oracle.com/javase/tutorial/2d/images/examples/strawberry.jpg";
-		Long id = persistImage(urlString);
+		String urlString = "https://upload.wikimedia.org/wikipedia/commons/a/a1/Dried_mushrooms.jpg";
+		//1,500 × 778
+		Long id = persistImage(urlString,200);
 
 		BufferedImage bufImage = readImageFull(id);
 		assertNotNull(bufImage);
@@ -46,7 +49,9 @@ public class ImageBlobTest {
 		assertNotNull(bufImageSmall);
 		int wSmall = bufImageSmall.getWidth();
 		int hSmall = bufImageSmall.getHeight();
-		assertTrue((wSmall < w) && (hSmall < h) && (wSmall > 0) && (hSmall > 0));
+		assertEquals(wSmall, 200f, 1.0f);
+		assertEquals(hSmall, 778f*200/1500, 1.0f);
+		
 	}
 
 	private BufferedImage readImageFull(Long id) {
@@ -57,8 +62,7 @@ public class ImageBlobTest {
 		try {
 			bufImage = ImageIO.read(bi);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			fail(e.getMessage());
 		}
 		return bufImage;
 	}
@@ -70,13 +74,13 @@ public class ImageBlobTest {
 		try {
 			bufImage = ImageIO.read(bi);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			fail(e.getMessage());
+			
 		}
 		return bufImage;
 	}
 
-	private long persistImage(String urlString) {
+	private long persistImage(String urlString,int maxLowResBoundingBox) {
 		Long id = null;
 		try {
 			EntityTransaction transact = em.getTransaction();
@@ -93,17 +97,17 @@ public class ImageBlobTest {
 			byte[] ba = bo.toByteArray();
 
 			
-			ImageEntity imgEnt = new ImageEntity(ba,"test",0.5f);
+			ImageEntity imgEnt = new ImageEntity(ba,"test",maxLowResBoundingBox);
 
 			em.persist(imgEnt);
 			id = imgEnt.getId();
 			transact.commit();
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			fail(e.getMessage());
 		}
 		return id;
 	}
+	
 
 }

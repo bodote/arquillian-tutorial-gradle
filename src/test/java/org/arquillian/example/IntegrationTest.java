@@ -287,12 +287,12 @@ public class IntegrationTest {
 	@RunAsClient
 	public void uploadDownloadImage() {
 		try {
-			URL inputUrl = new URL("https://docs.oracle.com/javase/tutorial/2d/images/examples/strawberry.jpg");
+			URL inputUrl = new URL("https://upload.wikimedia.org/wikipedia/commons/a/a1/Dried_mushrooms.jpg");
 			BufferedImage img = ImageIO.read(inputUrl);
 			assertNotNull(img);
 			assertTrue(img.getHeight() > 0);
 
-			Long id = callImagePost(url.toString().concat("image/strawberry"), img);
+			Long id = callImagePost(url.toString().concat("image/myImage"), img);
 			assertTrue(id > 0);
 
 			callImageGet(url.toString().concat("image/" + id+"/full"));
@@ -340,17 +340,29 @@ public class IntegrationTest {
 		byte[] byteArray = outputStream.toByteArray();
 		assertTrue(byteArray.length > 100);
 		try {
-			Files.delete((new File("/Users/bodo/" + filename)).toPath());
-		} catch (Exception e) {
-			// ignore
+			Files.delete((new File("/Users/bodo.teichmann/" + filename)).toPath());
+		} catch (IOException e) {
+			try {
+				Files.delete((new File("/Users/bodo/" + filename)).toPath());
+			} catch (IOException e2) {
+				/*ignore*/
+				
+			}
 
 		}
 
-		try (FileOutputStream fos = new FileOutputStream("/Users/bodo/" + filename)) {
+		try (FileOutputStream fos = new FileOutputStream("/Users/bodo.teichmann/" + filename  )) {
 			fos.write(byteArray);
 			// fos.close(); There is no more need for this line since you had created the
 			// instance of "fos" inside the try. And this will automatically close the
 			// OutputStream
+		} catch (FileNotFoundException e) {
+			try (FileOutputStream fos = new FileOutputStream("/Users/bodo/" + filename  )) {
+				fos.write(byteArray);
+				// fos.close(); There is no more need for this line since you had created the
+				// instance of "fos" inside the try. And this will automatically close the
+				// OutputStream
+			} 
 		}
 		assertTrue(byteArray.length > 1);
 	}

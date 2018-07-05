@@ -1,19 +1,9 @@
 package org.arquillian.example;
 
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
 import javax.ejb.Stateless;
-import javax.enterprise.context.RequestScoped;
-import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -25,7 +15,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -50,13 +39,13 @@ public class ImageResource {
 	public Response takeImageAndDownscale(@PathParam("Name") String name, byte[] payLoad) throws IOException {
 		
 		try {
-			Integer downscaleFactor =2;
+			Integer maxBoundBox =200;
 			try {
-			    downscaleFactor = Integer.parseInt((String) customProperties.get("downscaleFactor"));
+				maxBoundBox = Integer.parseInt((String) customProperties.get("maxBoundBox"));
 			} catch (Exception e) {
 				e.printStackTrace(System.err);
 			}
-			ImageEntity img = new ImageEntity(payLoad, name,(1.0f/downscaleFactor));
+			ImageEntity img = new ImageEntity(payLoad, name,maxBoundBox);
 			em.persist(img);
 			JsonObject jsonResponseId = Json.createObjectBuilder().add("id", img.getId()).build();
 			Response resp = Response.status(Response.Status.OK).entity(jsonResponseId).build();

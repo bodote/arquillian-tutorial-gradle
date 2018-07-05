@@ -60,7 +60,7 @@
         <configuration> 
                     <property name="chameleonTarget">wildfly:12.0.0.Final:remote</property>
                      <property name="username">admin</property>
-                     <property name="password">admin</property>            
+                     <property name="password">myDear15Social</property>       
     	</configuration>
    </container>
      

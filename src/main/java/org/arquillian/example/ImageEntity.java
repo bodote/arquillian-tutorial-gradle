@@ -46,19 +46,7 @@ public class ImageEntity {
 	public byte[] getBlob() {
 		return blob;
 	}
-
-	
-
 	private String name;
-	private float downscaleFactor;
-
-	public float getDownscaleFactor() {
-		return downscaleFactor;
-	}
-
-	public void setDownscaleFactor(int downscaleFactor) {
-		this.downscaleFactor = downscaleFactor;
-	}
 
 	public String getName() {
 		return name;
@@ -68,27 +56,32 @@ public class ImageEntity {
 		this.name = name;
 	}
 
-	public ImageEntity(byte[] blob, String name,float downscaleFactor) throws IOException {
+	
+	public ImageEntity(byte[] blob, String name,int maxLowResBoundingBox) throws IOException {
 		super();
 		this.blob = blob;
-		this.downscaleFactor=downscaleFactor;
-		this.downscaledBlob = downscale(blob);
+		
+		this.downscaledBlob = downscale2BoundingBox(blob,maxLowResBoundingBox);
 		this.name = name;
 		
 	}
 
-	public ImageEntity() {
-
-	}
-
-	private byte[] downscale(byte[] origBytes) throws IOException {
+	private byte[] downscale2BoundingBox(byte[] origBytes, int maxLowResBoundingBox) throws IOException {
 		ByteArrayInputStream bi = new ByteArrayInputStream(origBytes);
 		BufferedImage before = ImageIO.read(bi);
 		int w = before.getWidth();
 		int h = before.getHeight();
-		BufferedImage after = new BufferedImage(Math.round(w * this.downscaleFactor), Math.round(h * this.downscaleFactor), before.getType()  ) ;
+		float scaleFactor=1.0f;
+		if((w>maxLowResBoundingBox) ||  (h>maxLowResBoundingBox)) {
+			if ((1.0f*maxLowResBoundingBox/w) < (1.0f*maxLowResBoundingBox/h)) {
+				scaleFactor =1.0f* maxLowResBoundingBox/w;
+			} else {
+				scaleFactor =1.0f* maxLowResBoundingBox/h;
+			}
+		}
+		BufferedImage after = new BufferedImage(Math.round(w * scaleFactor), Math.round(h * scaleFactor), before.getType()  ) ;
 		AffineTransform at = new AffineTransform();
-		at.scale(this.downscaleFactor, this.downscaleFactor);
+		at.scale(scaleFactor, scaleFactor);
 		AffineTransformOp scaleOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
 		after = scaleOp.filter(before, after);
 		byte[] byteArrayAfter;
@@ -100,5 +93,11 @@ public class ImageEntity {
 
 		return byteArrayAfter;
 	}
+
+	public ImageEntity() {
+
+	}
+
+	
 
 }
