@@ -36,22 +36,22 @@ public class ImageBlobTest {
 	public void imageSaveGetById() {
 
 		String urlString = "https://upload.wikimedia.org/wikipedia/commons/a/a1/Dried_mushrooms.jpg";
-		//1,500 × 778
-		Long id = persistImage(urlString,200);
+		// 1,500 × 778
+		Long id = persistImage(urlString, 200);
 
 		BufferedImage bufImage = readImageFull(id);
 		assertNotNull(bufImage);
 		int w = bufImage.getWidth();
 		int h = bufImage.getHeight();
 		assertTrue((w > 0) && (h > 0));
-		
+
 		BufferedImage bufImageSmall = readImageDownscaled(id);
 		assertNotNull(bufImageSmall);
 		int wSmall = bufImageSmall.getWidth();
 		int hSmall = bufImageSmall.getHeight();
 		assertEquals(wSmall, 200f, 1.0f);
-		assertEquals(hSmall, 778f*200/1500, 1.0f);
-		
+		assertEquals(hSmall, 778f * 200 / 1500, 1.0f);
+
 	}
 
 	private BufferedImage readImageFull(Long id) {
@@ -66,27 +66,27 @@ public class ImageBlobTest {
 		}
 		return bufImage;
 	}
+
 	private BufferedImage readImageDownscaled(Long id) {
 		ImageEntity image = em.find(ImageEntity.class, id);
-		byte[] blob = image.getDownscaledBlob();
-		ByteArrayInputStream bi = new ByteArrayInputStream(blob);
 		BufferedImage bufImage = null;
 		try {
+			byte[] blob = image.getDownscaledBlob();
+			ByteArrayInputStream bi = new ByteArrayInputStream(blob);
 			bufImage = ImageIO.read(bi);
 		} catch (IOException e) {
 			fail(e.getMessage());
-			
+
 		}
 		return bufImage;
 	}
 
-	private long persistImage(String urlString,int maxLowResBoundingBox) {
+	private long persistImage(String urlString, int maxLowResBoundingBox) {
 		Long id = null;
 		try {
 			EntityTransaction transact = em.getTransaction();
 			transact.begin();
 			URL inputUrl = new URL(urlString);
-			
 
 			BufferedImage img = ImageIO.read(inputUrl);
 			ByteArrayOutputStream bo = new ByteArrayOutputStream();
@@ -96,8 +96,7 @@ public class ImageBlobTest {
 			bo.close();
 			byte[] ba = bo.toByteArray();
 
-			
-			ImageEntity imgEnt = new ImageEntity(ba,"test",maxLowResBoundingBox);
+			ImageEntity imgEnt = new ImageEntity(ba, "test", maxLowResBoundingBox);
 
 			em.persist(imgEnt);
 			id = imgEnt.getId();
@@ -108,6 +107,5 @@ public class ImageBlobTest {
 		}
 		return id;
 	}
-	
 
 }

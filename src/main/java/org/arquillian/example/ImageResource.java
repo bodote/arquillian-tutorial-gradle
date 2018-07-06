@@ -72,10 +72,14 @@ public class ImageResource {
 	@Produces("application/image")
 	@Path("{ID}/small")
 	public Response getSmallImageById(@PathParam("ID") Long id) throws IOException {
-
+		Integer maxBoundBox =200;
 		ImageEntity img = em.find(ImageEntity.class, id);
-
-		ResponseBuilder responseBuilder = Response.ok((Object) img.getDownscaledBlob());
+		try {
+			maxBoundBox = Integer.parseInt((String) customProperties.get("maxBoundBox"));
+		} catch (Exception e) {
+			e.printStackTrace(System.err);
+		}
+		ResponseBuilder responseBuilder = Response.ok((Object) img.getDownscaledBlob(maxBoundBox));
 		responseBuilder.header("Content-Disposition", "attachment; filename=\"" + img.getName() + "_small.jpg\"");
 		return responseBuilder.build();
 
